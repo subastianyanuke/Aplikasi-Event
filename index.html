@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eventix - Jual Tiket Event</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        :root { --primary: #6366f1; --secondary: #4f46e5; --accent: #8b5cf6; --bg-light: #f8fafc; }
+        body { background-color: var(--bg-light); font-family: 'Segoe UI', sans-serif; }
+        .navbar-custom { background: linear-gradient(135deg, var(--primary), var(--secondary)); box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .navbar-custom .nav-link, .navbar-brand { color: white !important; }
+        .nav-link.active { color: #fff !important; font-weight: bold; background: rgba(255,255,255,0.2); border-radius: 8px; }
+        .card { border: none; border-radius: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); transition: transform 0.3s; overflow: hidden; }
+        .card:hover { transform: translateY(-5px); }
+        .btn-primary { background-color: var(--primary); border-color: var(--primary); border-radius: 10px; }
+        .btn-primary:hover { background-color: var(--secondary); border-color: var(--secondary); }
+        .btn-warning { background-color: var(--accent); border-color: var(--accent); color: white; border-radius: 10px;}
+        .modal-header { background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white; border-radius: 15px 15px 0 0; }
+        .event-img { height: 200px; width: 100%; object-fit: cover; }
+        .ticket-img { width: 80px; height: 80px; object-fit: cover; border-radius: 10px; }
+        .wallet-card { cursor: pointer; transition: 0.2s; }
+        .wallet-card:hover { transform: scale(1.05); border-color: var(--primary) !important; }
+        .wallet-logo { width: 40px; height: 40px; object-fit: contain; }
+    </style>
+</head>
+<body>
+
+    <div id="appView">
+        <nav class="navbar navbar-expand-lg navbar-custom">
+            <div class="container">
+                <a class="navbar-brand fw-bold" href="#"><i class="bi bi-ticket-perforated-fill"></i> EVENTIX</a>
+                <div class="collapse navbar-collapse">
+                    <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                        <li class="nav-item"><a class="nav-link active" id="navEvent" href="#" onclick="showPage('eventPage')">EVENT</a></li>
+                        <li class="nav-item"><a class="nav-link" id="navRiwayat" href="#" onclick="showPage('riwayatPage')">RIWAYAT</a></li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#" onclick="openProfileModal()"><i class="bi bi-person-circle"></i> <span id="navProfileText">Profile</span></a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+        <div class="container mt-4">
+            <div id="eventPage">
+                <h3 class="mb-4" style="color: var(--primary)">Daftar Event Tersedia</h3>
+                <div id="eventList" class="row"></div>
+            </div>
+
+            <div id="riwayatPage" style="display:none;">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h3 style="color: var(--primary)">Riwayat Pesanan</h3>
+                    <div>
+                        <button class="btn btn-sm btn-light shadow-sm me-2" onclick="fetchRiwayat()"><i class="bi bi-arrow-clockwise"></i> Refresh</button>
+                        <button class="btn btn-sm btn-danger shadow-sm" onclick="deleteMyHistory()"><i class="bi bi-trash"></i> Hapus Semua Riwayat</button>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover bg-white" style="border-radius: 10px; overflow: hidden;">
+                        <thead style="background-color: var(--primary); color: white;">
+                            <tr><th>ID Pesanan</th><th>Total</th><th>Metode</th><th>Bukti Bayar</th><th>Status</th><th>Aksi</th></tr>
+                        </thead>
+                        <tbody id="riwayatList"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Profile -->
+    <div class="modal fade" id="profileModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="bi bi-person-circle"></i> Profile Pengguna</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="profileBody"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Pilih Tiket -->
+    <div class="modal fade" id="ticketModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Pilih Tiket untuk <span id="modalEventName"></span></h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="ticketList"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Checkout & Pembayaran -->
+    <div class="modal fade" id="checkoutModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Checkout & Pembayaran</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="checkoutForm">
+                        <input type="hidden" id="co_id_tiket"><input type="hidden" id="co_harga"><input type="hidden" id="co_metode">
+                        <div class="mb-3"><label class="form-label">Nama Tiket</label><input type="text" id="co_nama_tiket" class="form-control" readonly></div>
+                        
+                        <!-- Nama Pemesan diambil otomatis dari akun yang login (TIDAK BISA DIEDIT) -->
+                        <div class="mb-3">
+                            <label class="form-label">Nama Pemesan (Akun Login)</label>
+                            <input type="text" id="co_nama" class="form-control" readonly placeholder="Memuat data pengguna...">
+                            <div class="form-text text-muted">Nama terisi otomatis sesuai profil yang login.</div>
+                        </div>
+                        
+                        <div class="row mb-2">
+                            <div class="col-md-6 mb-3"><label class="form-label">Jumlah Tiket</label><input type="number" id="co_jumlah" class="form-control" min="1" value="1" required oninput="hitungTotal()"></div>
+                            <div class="col-md-6 mb-3"><label class="form-label">Total Bayar (Rp)</label><input type="text" id="co_total" class="form-control fw-bold text-success" readonly></div>
+                        </div>
+
+                        <hr>
+                        <h6 class="mt-2">Pilih Metode Pembayaran:</h6>
+                        <div class="row mb-3 text-center">
+                            <div class="col-3"><div class="card wallet-card p-2 border-primary" onclick="selectPayment('DANA', '081234567890', 'Tian')"><img src="data:image/jpeg;base64,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" class="wallet-logo mb-1"><br><small>DANA</small></div></div>
+                            <div class="col-3"><div class="card wallet-card p-2 border-primary" onclick="selectPayment('ShopeePay', '089876543210', 'Tian Shop')"><img src="data:image/jpeg;base64,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" class="wallet-logo mb-1"><br><small>ShopeePay</small></div></div>
+                            <div class="col-3"><div class="card wallet-card p-2 border-primary" onclick="selectPayment('GoPay', '081298765432', 'Tian G')"><img src="https://static.vecteezy.com/system/resources/previews/067/065/676/non_2x/gopay-logo-square-rounded-gopay-logo-free-download-gopay-logo-free-png.png" class="wallet-logo mb-1"><br><small>GoPay</small></div></div>
+                            <div class="col-3"><div class="card wallet-card p-2 border-primary" onclick="selectPayment('QRIS', QRIS_IMAGE_URL, 'Semua Bank / E-Wallet')"><img src="https://www.freepng.com/uploads/images/202512/uick-response-code-indonesia-standard-qris-logo-vector-png_1020x.jpg" class="wallet-logo mb-1"><br><small>QRIS</small></div></div>
+                        </div>
+
+                        <div id="paymentDetail" class="alert alert-info d-none"></div>
+
+                        <div class="mb-3">
+                            <label class="form-label">URL Bukti Pembayaran</label>
+                            <input type="text" id="co_bukti" class="form-control" placeholder="Link Dropbox, Google, encrypted-tbn, atau URL gambar">
+                            <div class="form-text">Bisa menggunakan link Dropbox, Google, encrypted-tbn0.gstatic.com, dan URL gambar lainnya.</div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Atau Pilih File Lokal</label>
+                            <input type="file" id="co_bukti_file" class="form-control" accept="image/*">
+                            <div class="form-text">Gambar lokal akan diubah menjadi data gambar agar dapat dikirim ke Spreadsheet. Gunakan gambar berukuran kecil.</div>
+                            <div id="co_bukti_preview" class="mt-2"></div>
+                        </div>
+
+                        <div class="form-check mb-3 p-3 border rounded">
+                            <input class="form-check-input" type="checkbox" id="co_verifikasi" required>
+                            <label class="form-check-label" for="co_verifikasi">Saya sudah melakukan pembayaran & melampirkan bukti.</label>
+                        </div>
+                        <button type="button" class="btn btn-primary w-100" onclick="prosesCheckout()">Kirim Bukti Bayar</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Ajukan Ubah Pesanan -->
+    <div class="modal fade" id="ubahPesananModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Ajukan Ubah Pesanan</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="ubah_id_pesanan">
+                    <div class="alert alert-info">Pengajuan perubahan akan dikirim ke Admin untuk diverifikasi.</div>
+                    <div class="mb-3"><label class="form-label">Alasan Ubah Pesanan</label><textarea id="ubah_alasan" class="form-control" rows="3" required></textarea></div>
+                    <button type="button" class="btn btn-primary w-100" onclick="kirimAjuanUbah()">Kirim Pengajuan</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyuy_-CWrHqzgG7k4gzOS5NjbWOCtPeQ-ISDiCVk-Tq0Y14fNsMNyJ0f1jmM4YpaahT.exec"; // GANTI INI
+        
+        // =======================================================
+        // UBAH URL QR CODE DI SINI (Bisa link atau Base64 gambar)
+        // =======================================================
+        const QRIS_IMAGE_URL = "https://upload.wikimedia.org/wikipedia/commons/d/d0/QR_code_for_mobile_English_Wikipedia.svg";
+        
+        let autoRefreshInterval;
+
+        // --- PROFILE & AUTH ---
+        function openProfileModal() {
+            const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+            if (isLoggedIn) fetchUserProfile();
+            else renderAuthTabs();
+            new bootstrap.Modal(document.getElementById('profileModal')).show();
+        }
+
+        // Ambil data profil terbaru dari Spreadsheet
+        async function fetchUserProfile() {
+            const localData = JSON.parse(localStorage.getItem('userData') || '{}');
+            if (!localData.username) return renderAuthTabs();
+            
+            document.getElementById('profileBody').innerHTML = `<div class="text-center"><div class="spinner-border text-primary"></div><p class="mt-2 text-muted">Memuat data profil...</p></div>`;
+            
+            try {
+                const res = await fetch(`${SCRIPT_URL}?action=login&username=${encodeURIComponent(localData.username)}&password=${encodeURIComponent(localData.password || '')}`);
+                const data = await res.json();
+                if (data.success && data.data) {
+                    localStorage.setItem('userData', JSON.stringify(data.data)); // Update localStorage
+                    renderProfileView(data.data);
+                } else {
+                    doLogout();
+                    alert("Sesi telah berakhir, silakan login kembali.");
+                }
+            } catch(e) {
+                renderProfileView(localData); // Fallback ke local jika offline
+            }
+        }
+
+        function renderProfileView(userData) {
+            if (!userData) userData = JSON.parse(localStorage.getItem('userData') || '{}');
+            document.getElementById('profileBody').innerHTML = `
+                <div class="text-center mb-4">
+                    <i class="bi bi-person-check-fill" style="font-size: 3rem; color: var(--primary);"></i>
+                    <h4 class="mt-2" style="color: var(--primary)">${userData.nama_pemesan || 'Pengguna'}</h4>
+                    <p class="text-muted mb-0">Status: <span class="badge bg-success">Aktif</span></p>
+                </div>
+                <table class="table table-borderless">
+                    <tr><td class="text-muted fw-bold">Username</td><td>: ${userData.username || '-'}</td></tr>
+                    <tr><td class="text-muted fw-bold">Nama Pemesan</td><td>: ${userData.nama_pemesan || '-'}</td></tr>
+                    <tr><td class="text-muted fw-bold">Email</td><td>: ${userData.email || '-'}</td></tr>
+                    <tr><td class="text-muted fw-bold">No HP</td><td>: ${userData.no_hp || '-'}</td></tr>
+                    <tr><td class="text-muted fw-bold">Alamat</td><td>: ${userData.alamat || '-'}</td></tr>
+                </table>
+                <div class="d-flex gap-2 mt-3">
+                    <button class="btn btn-warning w-100" onclick="renderProfileEdit()"><i class="bi bi-pencil"></i> Edit Profile</button>
+                    <button class="btn btn-danger w-100" onclick="doLogout()"><i class="bi bi-box-arrow-right"></i> Logout</button>
+                </div>
+            `;
+        }
+
+        function renderProfileEdit() {
+            const userData = JSON.parse(localStorage.getItem('userData') || '{}');
+            document.getElementById('profileBody').innerHTML = `
+                <form id="editProfileForm">
+                    <div class="mb-3"><label class="form-label">Username</label><input type="text" class="form-control" value="${userData.username || ''}" readonly disabled></div>
+                    <div class="mb-3"><label class="form-label">Nama Pemesan</label><input type="text" class="form-control" id="prof_nama" value="${userData.nama_pemesan || ''}" required></div>
+                    <div class="mb-3"><label class="form-label">Email</label><input type="email" id="prof_email" class="form-control" value="${userData.email || ''}" required></div>
+                    <div class="mb-3"><label class="form-label">No HP</label><input type="text" id="prof_hp" class="form-control" value="${userData.no_hp || ''}" required></div>
+                    <div class="mb-3"><label class="form-label">Alamat</label><textarea class="form-control" id="prof_alamat" rows="2" required>${userData.alamat || ''}</textarea></div>
+                    <div class="d-flex gap-2 mt-3">
+                        <button type="button" class="btn btn-secondary w-100" onclick="renderProfileView()">Batal</button>
+                        <button type="button" class="btn btn-primary w-100" onclick="saveProfileChanges()"><i class="bi bi-save"></i> Simpan</button>
+                    </div>
+                </form>
+            `;
+        }
+
+        async function saveProfileChanges() {
+            const btn = event.target;
+            btn.disabled = true; btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Menyimpan...';
+            const oldData = JSON.parse(localStorage.getItem('userData') || '{}');
+            const newPayload = {
+                username: oldData.username, 
+                password: oldData.password, 
+                nama_pemesan: document.getElementById('prof_nama').value,
+                email: document.getElementById('prof_email').value, 
+                no_hp: document.getElementById('prof_hp').value, 
+                alamat: document.getElementById('prof_alamat').value
+            };
+            
+            if(!newPayload.nama_pemesan || !newPayload.email || !newPayload.no_hp || !newPayload.alamat) { 
+                btn.disabled = false; btn.innerHTML = '<i class="bi bi-save"></i> Simpan'; return alert("Lengkapi semua data!"); 
+            }
+            
+            try {
+                const res = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({action: 'updateProfile', payload: newPayload}), headers: { 'Content-Type': 'text/plain;charset=utf-8' } });
+                const data = await res.json();
+                if (data.success) { 
+                    localStorage.setItem('userData', JSON.stringify(newPayload)); 
+                    alert("Profil berhasil diperbarui!"); 
+                    renderProfileView(newPayload); 
+                }
+                else { alert("Gagal update: " + data.message); }
+            } catch(e) { alert("Koneksi gagal"); }
+            btn.disabled = false; btn.innerHTML = '<i class="bi bi-save"></i> Simpan';
+        }
+
+        function renderAuthTabs() {
+            document.getElementById('profileBody').innerHTML = `
+                <ul class="nav nav-pills mb-3 justify-content-center">
+                    <li class="nav-item"><a class="nav-link active" data-bs-toggle="pill" href="#pLogin">Login</a></li>
+                    <li class="nav-item"><a class="nav-link" data-bs-toggle="pill" href="#pReg">Daftar Akun</a></li>
+                </ul>
+                <div class="tab-content">
+                    <div class="tab-pane fade show active" id="pLogin">
+                        <div class="mb-3"><label class="form-label">Username</label><input type="text" id="loginUsername" class="form-control" placeholder="Masukkan Username"></div>
+                        <div class="mb-3"><label class="form-label">Password</label><input type="password" id="loginPassword" class="form-control" placeholder="Masukkan Password"></div>
+                        <button class="btn btn-primary w-100" onclick="doLogin()">Login</button>
+                    </div>
+                    <div class="tab-pane fade" id="pReg">
+                        <div class="mb-2"><label class="form-label">Username</label><input type="text" id="regUsername" class="form-control" required></div>
+                        <div class="mb-2"><label class="form-label">Password</label><input type="password" id="regPassword" class="form-control" required></div>
+                        <div class="mb-2"><label class="form-label">Nama Pemesan</label><input type="text" id="regNamaPemesan" class="form-control" required></div>
+                        <div class="mb-2"><label class="form-label">Email</label><input type="email" id="regEmail" class="form-control" required></div>
+                        <div class="mb-2"><label class="form-label">No HP</label><input type="text" id="regNoHp" class="form-control" required></div>
+                        <div class="mb-3"><label class="form-label">Alamat</label><textarea class="form-control" id="regAlamat" rows="2" required></textarea></div>
+                        <button class="btn btn-primary w-100" onclick="doRegister()">Daftar Sekarang</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        async function doRegister() {
+            const btn = event.target; btn.disabled = true; btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Loading...';
+            const payload = { username: document.getElementById('regUsername').value, password: document.getElementById('regPassword').value, nama_pemesan: document.getElementById('regNamaPemesan').value, email: document.getElementById('regEmail').value, no_hp: document.getElementById('regNoHp').value, alamat: document.getElementById('regAlamat').value };
+            if(!payload.username || !payload.password || !payload.nama_pemesan) { btn.disabled = false; btn.innerHTML = 'Daftar Sekarang'; return alert("Lengkapi data wajib!"); }
+            try {
+                const res = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({action: 'register', payload: payload}), headers: { 'Content-Type': 'text/plain;charset=utf-8' } });
+                const data = await res.json();
+                alert(data.message);
+                if(data.success) { localStorage.setItem('isLoggedIn', 'true'); localStorage.setItem('userData', JSON.stringify(payload)); bootstrap.Modal.getInstance(document.getElementById('profileModal')).hide(); checkUIState(); }
+            } catch(e) { alert("Koneksi gagal"); }
+            btn.disabled = false; btn.innerHTML = 'Daftar Sekarang';
+        }
+
+        async function doLogin() {
+            const btn = event.target; btn.disabled = true; btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Loading...';
+            const u = document.getElementById('loginUsername').value, p = document.getElementById('loginPassword').value;
+            if(!u || !p) { btn.disabled = false; btn.innerHTML = 'Login'; return alert("Isi form login!"); }
+            try {
+                const res = await fetch(`${SCRIPT_URL}?action=login&username=${encodeURIComponent(u)}&password=${encodeURIComponent(p)}`);
+                const data = await res.json();
+                if (data.success && data.data) { localStorage.setItem('isLoggedIn', 'true'); localStorage.setItem('userData', JSON.stringify(data.data)); bootstrap.Modal.getInstance(document.getElementById('profileModal')).hide(); checkUIState(); }
+                else { alert("Login gagal! Username atau Password salah."); }
+            } catch(e) { alert("Koneksi gagal"); }
+            btn.disabled = false; btn.innerHTML = 'Login';
+        }
+
+        function doLogout() { localStorage.removeItem('isLoggedIn'); localStorage.removeItem('userData'); bootstrap.Modal.getInstance(document.getElementById('profileModal')).hide(); checkUIState(); }
+
+        function checkUIState() {
+            const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+            const navText = document.getElementById('navProfileText');
+            if (isLoggedIn) { const userData = JSON.parse(localStorage.getItem('userData') || '{}'); navText.innerText = userData.nama_pemesan || 'Profile'; initApp(); }
+            else { navText.innerText = 'Login'; if (autoRefreshInterval) clearInterval(autoRefreshInterval); document.getElementById('eventList').innerHTML = `<div class="text-center text-muted mt-5">Silakan login terlebih dahulu. <button class="btn btn-sm btn-primary ms-2" onclick="openProfileModal()">Login</button></div>`; document.getElementById('riwayatList').innerHTML = `<tr><td colspan="6" class="text-center text-muted">Belum login.</td></tr>`; }
+        }
+
+        // --- APP INIT ---
+        function initApp() { showPage('eventPage'); fetchEvents(); fetchRiwayat(); autoRefreshInterval = setInterval(() => { fetchEvents(); fetchRiwayat(); }, 30000); }
+        function showPage(pageId) { document.getElementById('eventPage').style.display = 'none'; document.getElementById('riwayatPage').style.display = 'none'; document.getElementById(pageId).style.display = 'block'; document.getElementById('navEvent').classList.remove('active'); document.getElementById('navRiwayat').classList.remove('active'); if (pageId === 'eventPage') document.getElementById('navEvent').classList.add('active'); if (pageId === 'riwayatPage') document.getElementById('navRiwayat').classList.add('active'); }
+
+        // --- FETCH & RENDER EVENTS ---
+        async function fetchEvents() { if (localStorage.getItem('isLoggedIn') !== 'true') return; try { const res = await fetch(`${SCRIPT_URL}?action=getData&sheet=Sheet1`); const data = await res.json(); renderEvents(data.data || []); } catch (err) { console.error(err); } }
+        function extractGoogleDriveId(url) {
+            if (!url) return "";
+            const text = String(url).trim();
+            const patterns = [
+                /\/file\/d\/([a-zA-Z0-9_-]+)/i,
+                /\/d\/([a-zA-Z0-9_-]+)/i,
+                /[?&]id=([a-zA-Z0-9_-]+)/i
+            ];
+            for (const pattern of patterns) {
+                const match = text.match(pattern);
+                if (match && match[1]) return match[1];
+            }
+            return "";
+        }
+
+        function fixImgUrl(url, size = "400x200") {
+            const placeholder = `https://placehold.co/${size}/f1f5f9/64748b?text=No+Image`;
+            if (url === null || url === undefined) return placeholder;
+            let raw = String(url).trim();
+            if (!raw) return placeholder;
+
+            const urlMatch = raw.match(/https?:\/\/[^\s"'<>]+/i);
+            let u = (urlMatch ? urlMatch[0] : raw).trim();
+            u = u.replace(/^[("'`\s]+|[)"'`,;\s]+$/g, "");
+
+            if (/^data:image\/[a-zA-Z0-9.+-]+;base64,/i.test(u)) return u;
+            if (!/^https?:\/\//i.test(u)) return placeholder;
+
+            try {
+                const parsed = new URL(u);
+                const host = parsed.hostname.toLowerCase();
+                const googleId = extractGoogleDriveId(u);
+                if (googleId && (host.includes("drive.google.com") || host.includes("docs.google.com") || host.includes("googleusercontent.com"))) {
+                    return `https://drive.google.com/thumbnail?id=${encodeURIComponent(googleId)}&sz=w1200`;
+                }
+                if (host.includes("encrypted-tbn0.gstatic.com") || host.includes("encrypted-tbn1.gstatic.com") || host.includes("encrypted-tbn2.gstatic.com") || host.includes("encrypted-tbn3.gstatic.com")) return u;
+                if (host.includes("googleusercontent.com")) return u;
+                if (host.includes("dropbox.com")) {
+                    parsed.searchParams.delete("dl");
+                    parsed.searchParams.set("raw", "1");
+                    return parsed.toString();
+                }
+                if (host === "github.com" && parsed.pathname.includes("/blob/")) {
+                    const parts = parsed.pathname.split("/").filter(Boolean);
+                    if (parts.length >= 5 && parts[2] === "blob") return `https://raw.githubusercontent.com/${parts[0]}/${parts[1]}/${parts.slice(3).join("/")}`;
+                }
+                return u;
+            } catch (error) {
+                console.warn("URL gambar tidak valid:", url, error);
+                return placeholder;
+            }
+        }
+
+        function imageError(img, size = "400x200") {
+            const googleId = img.dataset.googleId;
+            if (googleId && img.dataset.googleFallback !== "1") {
+                img.dataset.googleFallback = "1";
+                img.src = `https://lh3.googleusercontent.com/d/${encodeURIComponent(googleId)}=w1200`;
+                return;
+            }
+            img.onerror = null;
+            img.src = `https://placehold.co/${size}/f1f5f9/64748b?text=Image+Error`;
+        }
+
+        function renderEvents(events) {
+            const container = document.getElementById('eventList');
+            if (!events.length) { container.innerHTML = `<div class="text-center text-muted mt-5">Tidak ada event tersedia.</div>`; return; }
+            container.innerHTML = events.map(evt => {
+                const img = fixImgUrl(evt.GAMBAR), safeEventName = (evt.NAMA_EVENT || "").replace(/'/g, "\\'");
+                return `<div class="col-md-6 mb-4"><div class="card h-100"><img src="${img}" class="event-img" alt="${evt.NAMA_EVENT}" data-google-id="${extractGoogleDriveId(evt.GAMBAR)}" onerror="imageError(this, '400x200')"><div class="card-body d-flex flex-column"><span class="badge bg-secondary mb-2 align-self-start">${evt.STATUS}</span><h4 class="card-title" style="color: var(--primary)">${evt.NAMA_EVENT}</h4><p class="text-muted mb-1"><i class="bi bi-calendar-event"></i> ${formatDate(evt.TANGGAL)}</p><p class="text-muted mb-2"><i class="bi bi-geo-alt"></i> ${evt.LOKASI}</p><p class="card-text flex-grow-1">${evt.DESKRIPSI_ACARA}</p><button class="btn btn-primary mt-3" onclick="openTicketModal('${evt.ID_EVENT}', '${safeEventName}')">Lihat Tiket & Pesan</button></div></div></div>`;
+            }).join('');
+        }
+
+        async function openTicketModal(eventId, eventName) {
+            document.getElementById('modalEventName').innerText = eventName;
+            const modal = new bootstrap.Modal(document.getElementById('ticketModal'));
+            document.getElementById('ticketList').innerHTML = `<div class="text-center"><div class="spinner-border text-primary"></div><p class="mt-2 text-muted">Memuat tiket...</p></div>`;
+            modal.show();
+            try {
+                const res = await fetch(`${SCRIPT_URL}?action=getData&sheet=Sheet2`);
+                const data = await res.json();
+                const tickets = (data.data || []).filter(t => String(t.ID_EVENT).trim() === String(eventId).trim() && Number(t.KUOTA) > 0 && t.STATUS === 'AKTIF');
+                if (!tickets.length) { document.getElementById('ticketList').innerHTML = `<div class="alert alert-warning text-center">Tiket tidak tersedia atau kuota habis.</div>`; return; }
+                document.getElementById('ticketList').innerHTML = tickets.map(t => {
+                    const img = fixImgUrl(t.GAMBAR);
+                    return `<div class="card mb-3 border-0 shadow-sm"><div class="card-body d-flex align-items-center"><img src="${img}" class="ticket-img me-3" alt="Tiket" data-google-id="${extractGoogleDriveId(t.GAMBAR)}" onerror="imageError(this, '80x80')"><div class="flex-grow-1"><h5 class="mb-1" style="color: var(--primary)">${t.NAMA_TIKET}</h5><p class="mb-1 text-muted" style="font-size:0.8rem">${t.DESKRIPSI || ''}</p><p class="mb-1 fw-bold" style="color: var(--accent)">Rp ${Number(t.HARGA).toLocaleString('id-ID')}</p><span class="badge bg-light text-dark border">Sisa: ${t.KUOTA}</span></div><button class="btn btn-sm btn-primary ms-2" onclick="openCheckoutModal('${t.ID_TIKET}', '${t.NAMA_TIKET}', ${t.HARGA})">Pesan</button></div></div>`;
+                }).join('');
+            } catch (err) { document.getElementById('ticketList').innerHTML = `<div class="alert alert-danger text-center">Gagal memuat tiket.</div>`; }
+        }
+
+        // --- CHECKOUT & PEMBAYARAN ---
+        function selectPayment(method, number, name) {
+            document.getElementById('co_metode').value = method;
+            let detailHtml = "";
+            if (method === 'QRIS') { detailHtml = `<img src="${number}" class="img-fluid d-block mx-auto mb-2" style="max-width:150px;"><p class="text-center mb-0">Scan QRIS di atas</p>`; }
+            else { detailHtml = `<p class="mb-1"><b>Metode:</b> ${method}</p><p class="mb-1"><b>No Tujuan:</b> ${number}</p><p class="mb-0"><b>Atas Nama:</b> ${name}</p>`; }
+            document.getElementById('paymentDetail').innerHTML = detailHtml;
+            document.getElementById('paymentDetail').classList.remove('d-none');
+        }
+
+        // --- BUKTI PEMBAYARAN: URL ATAU FILE LOKAL ---
+        function isImageDataUrl(value) {
+            return typeof value === 'string' && /^data:image\/[a-zA-Z0-9.+-]+;base64,/i.test(value);
+        }
+
+        function compressLocalImage(file, maxWidth = 800, quality = 0.65) {
+            return new Promise((resolve, reject) => {
+                if (!file || !file.type.startsWith('image/')) {
+                    reject(new Error('File harus berupa gambar.'));
+                    return;
+                }
+                const reader = new FileReader();
+                reader.onload = () => {
+                    const img = new Image();
+                    img.onload = () => {
+                        const scale = Math.min(1, maxWidth / img.width);
+                        const canvas = document.createElement('canvas');
+                        canvas.width = Math.max(1, Math.round(img.width * scale));
+                        canvas.height = Math.max(1, Math.round(img.height * scale));
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                        let dataUrl = canvas.toDataURL('image/jpeg', quality);
+                        if (dataUrl.length > 45000) dataUrl = canvas.toDataURL('image/jpeg', 0.45);
+                        resolve(dataUrl);
+                    };
+                    img.onerror = () => reject(new Error('Gambar lokal tidak dapat dibaca.'));
+                    img.src = reader.result;
+                };
+                reader.onerror = () => reject(new Error('File gagal dibaca.'));
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function previewBuktiPembayaran(value) {
+            const preview = document.getElementById('co_bukti_preview');
+            if (!preview) return;
+            if (!value) {
+                preview.innerHTML = '';
+                return;
+            }
+            const safeUrl = String(value).replace(/"/g, '&quot;');
+            preview.innerHTML = `
+                <div class="small text-muted mb-1">Pratinjau bukti pembayaran:</div>
+                <img src="${safeUrl}" alt="Pratinjau bukti pembayaran"
+                     style="max-width:220px;max-height:220px;object-fit:contain;border:1px solid #ddd;border-radius:8px;padding:4px;"
+                     onerror="this.style.display='none'">
+            `;
+        }
+
+        document.addEventListener('change', async function (event) {
+            if (event.target && event.target.id === 'co_bukti_file') {
+                const file = event.target.files && event.target.files[0];
+                if (!file) return;
+                try {
+                    const dataUrl = await compressLocalImage(file);
+                    document.getElementById('co_bukti').value = dataUrl;
+                    previewBuktiPembayaran(dataUrl);
+                } catch (error) {
+                    alert(error.message || 'File gambar tidak dapat diproses.');
+                    event.target.value = '';
+                }
+            }
+        });
+
+        document.addEventListener('input', function (event) {
+            if (event.target && event.target.id === 'co_bukti') {
+                previewBuktiPembayaran(event.target.value.trim());
+            }
+        });
+
+        // Ambil data pengguna terbaru saat checkout
+        async function openCheckoutModal(idTiket, namaTiket, harga) {
+            const localData = JSON.parse(localStorage.getItem('userData') || '{}');
+            document.getElementById('co_id_tiket').value = idTiket; 
+            document.getElementById('co_nama_tiket').value = namaTiket; 
+            document.getElementById('co_harga').value = harga; 
+            document.getElementById('co_jumlah').value = 1;
+            document.getElementById('co_nama').value = 'Memuat data...'; 
+            document.getElementById('co_bukti').value = ''; 
+            if (document.getElementById('co_bukti_file')) document.getElementById('co_bukti_file').value = ''; 
+            if (document.getElementById('co_bukti_preview')) document.getElementById('co_bukti_preview').innerHTML = ''; 
+            document.getElementById('paymentDetail').classList.add('d-none');
+            hitungTotal();
+            bootstrap.Modal.getInstance(document.getElementById('ticketModal')).hide();
+            new bootstrap.Modal(document.getElementById('checkoutModal')).show();
+
+            // Ambil data nama pemesan & profil terbaru dari Spreadsheet
+            try {
+                const res = await fetch(`${SCRIPT_URL}?action=login&username=${encodeURIComponent(localData.username)}&password=${encodeURIComponent(localData.password || '')}`);
+                const data = await res.json();
+                if (data.success && data.data) {
+                    localStorage.setItem('userData', JSON.stringify(data.data));
+                    document.getElementById('co_nama').value = data.data.nama_pemesan || 'Pengguna';
+                } else {
+                    document.getElementById('co_nama').value = localData.nama_pemesan || 'Gagal memuat data';
+                }
+            } catch (err) {
+                document.getElementById('co_nama').value = localData.nama_pemesan || 'Error Koneksi';
+            }
+        }
+
+        function hitungTotal() { const jml = parseInt(document.getElementById('co_jumlah').value) || 0, hrg = parseInt(document.getElementById('co_harga').value) || 0; document.getElementById('co_total').value = (jml * hrg).toLocaleString('id-ID'); }
+
+        async function prosesCheckout() {
+            if (!document.getElementById('co_verifikasi').checked) { return alert("Centang verifikasi terlebih dahulu!"); }
+            const btn = event.target; btn.disabled = true; btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Memproses...';
+            
+            // Ambil ulang dari localStorage yang sudah diupdate saat openCheckoutModal
+            const userData = JSON.parse(localStorage.getItem('userData') || '{}');
+            const payload = {
+                ID_PESANAN: "TRX" + Date.now(), 
+                ID_TIKET: document.getElementById('co_id_tiket').value, 
+                USERNAME: userData.username, 
+                NAMA_PEMESAN: document.getElementById('co_nama').value, // Diambil dari form (Yang tadi sudah otomatis terisi data akun)
+                EMAIL: userData.email, 
+                NO_HP: userData.no_hp, 
+                ALAMAT: userData.alamat, 
+                JUMLAH: parseInt(document.getElementById('co_jumlah').value),
+                TOTAL_HARGA: parseInt(document.getElementById('co_harga').value) * parseInt(document.getElementById('co_jumlah').value),
+                METODE_PEMBAYARAN: document.getElementById('co_metode').value, 
+                BUKTI_PEMBAYRAN: document.getElementById('co_bukti').value,
+                "TANGGAL PESAN": new Date().toLocaleDateString('id-ID'), 
+                STATUS: "Menunggu Verifikasi Admin", 
+                ALASAN_UBAH: ""
+            };
+            
+            // Pencegahan jika data user belum ke-load di form
+            if (!payload.NAMA_PEMESAN || payload.NAMA_PEMESAN === 'Memuat data...') { 
+                btn.disabled = false; btn.innerHTML = 'Kirim Bukti Bayar'; return alert("Data pengguna gagal dimuat. Tutup dan buka kembali checkout."); 
+            }
+            if (!payload.BUKTI_PEMBAYRAN) { btn.disabled = false; btn.innerHTML = 'Kirim Bukti Bayar'; return alert("Masukkan URL gambar atau pilih file bukti pembayaran!"); }
+            if (isImageDataUrl(payload.BUKTI_PEMBAYRAN) && payload.BUKTI_PEMBAYRAN.length > 49000) { btn.disabled = false; btn.innerHTML = 'Kirim Bukti Bayar'; return alert('Ukuran gambar masih terlalu besar. Pilih gambar yang lebih kecil.'); }
+            
+            try {
+                const res = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'checkout', payload }), headers: { 'Content-Type': 'text/plain;charset=utf-8' } });
+                const data = await res.json();
+                if (data.success) { alert(data.message); bootstrap.Modal.getInstance(document.getElementById('checkoutModal')).hide(); fetchEvents(); fetchRiwayat(); showPage('riwayatPage'); }
+                else { alert("Error: " + data.message); }
+            } catch(e) { alert("Koneksi gagal"); }
+            btn.disabled = false; btn.innerHTML = 'Kirim Bukti Bayar';
+        }
+
+        // --- RIWAYAT & UBAH PESANAN ---
+        async function fetchRiwayat() {
+            if (localStorage.getItem('isLoggedIn') !== 'true') return;
+            try {
+                const res = await fetch(`${SCRIPT_URL}?action=getData&sheet=Sheet3`);
+                const data = await res.json();
+                const userData = JSON.parse(localStorage.getItem('userData') || '{}');
+                const myOrders = (data.data || []).filter(r => r.EMAIL === userData.email || r.NAMA_PEMESAN === userData.nama_pemesan);
+                renderRiwayat(myOrders);
+            } catch (err) { console.error(err); }
+        }
+
+        function renderRiwayat(data) {
+            const tbody = document.getElementById('riwayatList');
+            if (!data.length) { tbody.innerHTML = `<tr><td colspan="6" class="text-center text-muted">Belum ada pesanan.</td></tr>`; return; }
+            tbody.innerHTML = data.map(r => {
+                let badgeColor = 'bg-warning text-dark';
+                if (r.STATUS === 'Lunas') badgeColor = 'bg-success';
+                if (r.STATUS === 'Batal') badgeColor = 'bg-danger';
+                let img = fixImgUrl(r.BUKTI_PEMBAYRAN || r.GAMBAR, '40x40');
+                return `<tr><td>${r.ID_PESANAN}</td><td>Rp ${Number(r.TOTAL_HARGA).toLocaleString('id-ID')}</td><td>${r.METODE_PEMBAYARAN || '-'}</td><td><a href="${img}" target="_blank"><img src="${img}" width="40" height="40" style="object-fit:cover; border-radius:5px;" data-google-id="${extractGoogleDriveId(r.BUKTI_PEMBAYRAN || r.GAMBAR)}" onerror="imageError(this, '40x40')"></a></td><td><span class="badge ${badgeColor}">${r.STATUS}</span></td><td><button class="btn btn-sm btn-warning" onclick="openUbahModal('${r.ID_PESANAN}')"><i class="bi bi-pencil"></i> Ubah Pesanan</button></td></tr>`;
+            }).join('');
+        }
+
+        function openUbahModal(id) { document.getElementById('ubah_id_pesanan').value = id; document.getElementById('ubah_alasan').value = ''; new bootstrap.Modal(document.getElementById('ubahPesananModal')).show(); }
+
+        async function kirimAjuanUbah() {
+            const btn = event.target; btn.disabled = true; btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Mengirim...';
+            const id = document.getElementById('ubah_id_pesanan').value, alasan = document.getElementById('ubah_alasan').value;
+            if(!alasan) { btn.disabled = false; btn.innerHTML = 'Kirim Pengajuan'; return alert("Alasan wajib diisi!"); }
+            try {
+                const res = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({action: 'updateData', sheet: 'Sheet3', idCol: 'ID_PESANAN', idVal: id, payload: { STATUS: "Menunggu Verifikasi", ALASAN_UBAH: alasan }}), headers: { 'Content-Type': 'text/plain;charset=utf-8' } });
+                const data = await res.json();
+                if (data.success) { alert("Pengajuan terkirim ke admin."); bootstrap.Modal.getInstance(document.getElementById('ubahPesananModal')).hide(); fetchRiwayat(); }
+                else { alert("Gagal: " + data.message); }
+            } catch(e) { alert("Koneksi gagal"); }
+            btn.disabled = false; btn.innerHTML = 'Kirim Pengajuan';
+        }
+
+        async function deleteMyHistory() {
+            if (!confirm("Yakin ingin menghapus SEMUA riwayat pesanan Anda?")) return;
+            const btn = event.target; btn.disabled = true; btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Menghapus...';
+            const userData = JSON.parse(localStorage.getItem('userData') || '{}');
+            try {
+                const res = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({action: 'deleteAllUserHistory', email: userData.email}), headers: { 'Content-Type': 'text/plain;charset=utf-8' } });
+                const data = await res.json();
+                if (data.success) { alert(data.message); fetchRiwayat(); } else { alert("Gagal: " + data.message); }
+            } catch(e) { alert("Koneksi gagal"); }
+            btn.disabled = false; btn.innerHTML = '<i class="bi bi-trash"></i> Hapus Semua Riwayat';
+        }
+
+        function formatDate(dateString) { if (!dateString) return "-"; try { return new Date(dateString).toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' }); } catch { return dateString; } }
+        window.onload = () => { checkUIState(); };
+    </script>
+</body>
+</html>
