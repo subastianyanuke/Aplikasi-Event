@@ -21,15 +21,31 @@
         .btn-primary { background-color: var(--primary); border-color: var(--primary); border-radius: 10px; }
         .btn-primary:hover { background-color: var(--secondary); border-color: var(--secondary); }
         .btn-warning { background-color: var(--accent); border-color: var(--accent); color: white; border-radius: 10px;}
+        .btn-success { border-radius: 10px; }
         .modal-header { background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white; border-radius: 15px 15px 0 0; }
         .event-img { height: 200px; width: 100%; object-fit: cover; }
         .ticket-img { width: 80px; height: 80px; object-fit: cover; border-radius: 10px; }
         .wallet-card { cursor: pointer; transition: 0.2s; min-height: 90px; display: flex; flex-direction: column; justify-content: center; align-items: center; }
         .wallet-card:hover { transform: scale(1.05); border-color: var(--primary) !important; }
         .wallet-logo { width: 40px; height: 40px; object-fit: contain; }
-
-        /* ===== RESPONSIVE STYLES ===== */
-        /* Tablet */
+        .qr-display { max-width: 250px; width: 100%; height: auto; border: 4px solid var(--primary); border-radius: 12px; padding: 8px; background: white; }
+        .qr-ticket-card { background: white; border: 2px dashed var(--primary); border-radius: 12px; padding: 20px; text-align: center; }
+        .status-badge { padding: 5px 10px; border-radius: 6px; font-size: 11px; font-weight: bold; display: inline-block; }
+        .status-menunggu { background: #fef3c7; color: #92400e; }
+        .status-lunas { background: #d1fae5; color: #065f46; }
+        .status-batal { background: #fee2e2; color: #991b1b; }
+        .status-izin { background: #dbeafe; color: #1e40af; }
+        .status-checkin { background: #e0e7ff; color: #4338ca; }
+        /* Search bar styles */
+        .search-container { position: relative; margin-bottom: 20px; }
+        .search-container .form-control { padding-left: 40px; border-radius: 12px; border: 2px solid #e0e7ff; transition: 0.3s; }
+        .search-container .form-control:focus { border-color: var(--primary); box-shadow: 0 0 0 0.2rem rgba(99,102,241,0.15); }
+        .search-container .search-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--primary); font-size: 1.1rem; pointer-events: none; }
+        .search-container .clear-btn { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); border: none; background: transparent; color: #94a3b8; cursor: pointer; font-size: 1.2rem; display: none; }
+        .search-container .clear-btn:hover { color: var(--primary); }
+        .search-meta { font-size: 0.8rem; color: #64748b; margin-top: 6px; }
+        .highlight { background-color: #fef08a; padding: 0 2px; border-radius: 3px; }
+        
         @media (max-width: 991.98px) {
             .navbar-collapse { background: rgba(79, 70, 229, 0.95); padding: 1rem; border-radius: 10px; margin-top: 0.5rem; }
             .navbar-nav .nav-link { padding: 0.75rem 1rem !important; }
@@ -37,47 +53,22 @@
             .navbar-toggler:focus { box-shadow: 0 0 0 0.2rem rgba(255,255,255,0.25); }
             .navbar-toggler-icon { filter: invert(1); }
         }
-        /* Mobile */
         @media (max-width: 767.98px) {
             .navbar-brand { font-size: 1.1rem; }
-            .navbar-brand .bi { font-size: 1.2rem; }
             h3 { font-size: 1.3rem; }
             .container { padding-left: 12px; padding-right: 12px; }
             .event-img { height: 160px; }
             .card-body { padding: 1rem; }
-            .card-title { font-size: 1.1rem; }
             .modal-dialog { margin: 0.5rem; }
-            .modal-dialog .modal-content { border-radius: 12px; }
-            .modal-title { font-size: 1rem; }
-            .wallet-logo { width: 32px; height: 32px; }
-            .wallet-card { min-height: 80px; padding: 6px !important; }
-            .wallet-card small { font-size: 0.7rem; }
-            .ticket-img { width: 60px; height: 60px; }
+            .qr-display { max-width: 200px; }
             .table { font-size: 0.85rem; }
-            .table th, .table td { padding: 0.5rem 0.4rem; }
-            .btn { font-size: 0.9rem; }
-            .btn-sm { font-size: 0.8rem; }
-            .nav-pills .nav-link { font-size: 0.9rem; padding: 0.5rem 0.75rem; }
+            .search-container .form-control { font-size: 0.9rem; }
         }
-        /* Small Mobile */
-        @media (max-width: 380px) {
-            .event-img { height: 140px; }
-            .navbar-brand { font-size: 1rem; }
-            .col-6-mobile { width: 50% !important; }
-        }
-
-        /* Touch-friendly improvements */
         @media (hover: none) and (pointer: coarse) {
             .card:hover { transform: none; }
             .wallet-card:hover { transform: none; }
             .btn { min-height: 44px; }
         }
-
-        /* Loading skeleton */
-        .skeleton { background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; }
-        @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
-
-        /* User badge on navbar */
         .user-badge { display: inline-flex; align-items: center; gap: 0.4rem; max-width: 150px; }
         .user-badge span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     </style>
@@ -95,6 +86,7 @@
                     <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
                         <li class="nav-item"><a class="nav-link active" id="navEvent" href="#" onclick="showPage('eventPage'); closeNavbar(); return false;">EVENT</a></li>
                         <li class="nav-item"><a class="nav-link" id="navRiwayat" href="#" onclick="showPage('riwayatPage'); closeNavbar(); return false;">RIWAYAT</a></li>
+                        <li class="nav-item"><a class="nav-link" id="navTiketSaya" href="#" onclick="showPage('tiketSayaPage'); closeNavbar(); return false;">TIKET SAYA</a></li>
                         <li class="nav-item">
                             <a class="nav-link user-badge" href="#" onclick="openProfileModal(); return false;">
                                 <i class="bi bi-person-circle"></i> <span id="navProfileText">Profile</span>
@@ -108,6 +100,15 @@
         <div class="container mt-3 mt-md-4">
             <div id="eventPage">
                 <h3 class="mb-3 mb-md-4" style="color: var(--primary)"><i class="bi bi-calendar2-event-fill"></i> Daftar Event Tersedia</h3>
+                
+                <!-- SEARCH EVENT -->
+                <div class="search-container">
+                    <i class="bi bi-search search-icon"></i>
+                    <input type="text" id="searchEvent" class="form-control" placeholder="Cari event berdasarkan ID atau nama event..." oninput="filterEvents()">
+                    <button class="clear-btn" onclick="clearSearch('searchEvent', 'filterEvents')">&times;</button>
+                    <div id="searchEventMeta" class="search-meta"></div>
+                </div>
+                
                 <div id="eventList" class="row g-3 g-md-4"></div>
             </div>
 
@@ -115,10 +116,19 @@
                 <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-3 mb-md-4 gap-2">
                     <h3 class="mb-0" style="color: var(--primary)"><i class="bi bi-clock-history"></i> Riwayat Pesanan</h3>
                     <div class="d-flex gap-2">
-                        <button class="btn btn-sm btn-light shadow-sm" onclick="fetchRiwayat()"><i class="bi bi-arrow-clockwise"></i> <span class="d-none d-sm-inline">Refresh</span></button>
-                        <button class="btn btn-sm btn-danger shadow-sm" onclick="deleteMyHistory()"><i class="bi bi-trash"></i> <span class="d-none d-sm-inline">Hapus Semua</span></button>
+                        <button class="btn btn-sm btn-light shadow-sm" onclick="fetchRiwayat()"><i class="bi bi-arrow-clockwise"></i> Refresh</button>
+                        <button class="btn btn-sm btn-danger shadow-sm" onclick="deleteMyHistory()"><i class="bi bi-trash"></i> Hapus Semua</button>
                     </div>
                 </div>
+                
+                <!-- SEARCH RIWAYAT -->
+                <div class="search-container">
+                    <i class="bi bi-search search-icon"></i>
+                    <input type="text" id="searchRiwayat" class="form-control" placeholder="Cari pesanan berdasarkan ID pesanan atau nama..." oninput="filterRiwayat()">
+                    <button class="clear-btn" onclick="clearSearch('searchRiwayat', 'filterRiwayat')">&times;</button>
+                    <div id="searchRiwayatMeta" class="search-meta"></div>
+                </div>
+                
                 <div class="table-responsive shadow-sm rounded-3">
                     <table class="table table-hover bg-white mb-0" style="border-radius: 10px; overflow: hidden;">
                         <thead style="background-color: var(--primary); color: white;">
@@ -127,6 +137,20 @@
                         <tbody id="riwayatList"></tbody>
                     </table>
                 </div>
+            </div>
+
+            <div id="tiketSayaPage" style="display:none;">
+                <h3 class="mb-3 mb-md-4" style="color: var(--primary)"><i class="bi bi-qr-code"></i> Tiket Saya (QR Code)</h3>
+                
+                <!-- SEARCH TIKET SAYA -->
+                <div class="search-container">
+                    <i class="bi bi-search search-icon"></i>
+                    <input type="text" id="searchTiket" class="form-control" placeholder="Cari tiket berdasarkan ID pesanan atau nama tiket..." oninput="filterTiketSaya()">
+                    <button class="clear-btn" onclick="clearSearch('searchTiket', 'filterTiketSaya')">&times;</button>
+                    <div id="searchTiketMeta" class="search-meta"></div>
+                </div>
+                
+                <div id="tiketSayaList" class="row g-3 g-md-4"></div>
             </div>
         </div>
     </div>
@@ -169,18 +193,15 @@
                     <form id="checkoutForm">
                         <input type="hidden" id="co_id_tiket"><input type="hidden" id="co_harga"><input type="hidden" id="co_metode">
                         <div class="mb-3"><label class="form-label">Nama Tiket</label><input type="text" id="co_nama_tiket" class="form-control" readonly></div>
-                        
                         <div class="mb-3">
                             <label class="form-label">Nama Pemesan (Akun Login)</label>
                             <input type="text" id="co_nama" class="form-control" readonly placeholder="Memuat data pengguna...">
                             <div class="form-text text-muted"><i class="bi bi-info-circle"></i> Nama terisi otomatis sesuai profil yang login.</div>
                         </div>
-                        
                         <div class="row mb-2">
                             <div class="col-6 col-md-6 mb-3"><label class="form-label">Jumlah Tiket</label><input type="number" id="co_jumlah" class="form-control" min="1" value="1" required oninput="hitungTotal()"></div>
                             <div class="col-6 col-md-6 mb-3"><label class="form-label">Total Bayar (Rp)</label><input type="text" id="co_total" class="form-control fw-bold text-success" readonly></div>
                         </div>
-
                         <hr>
                         <h6 class="mt-2"><i class="bi bi-wallet2"></i> Pilih Metode Pembayaran:</h6>
                         <div class="row mb-3 text-center g-2">
@@ -189,21 +210,16 @@
                             <div class="col-3 col-md-3"><div class="card wallet-card p-2 border-primary" onclick="selectPayment('GoPay', '081298765432', 'Tian G')"><img src="https://static.vecteezy.com/system/resources/previews/067/065/676/non_2x/gopay-logo-square-rounded-gopay-logo-free-download-gopay-logo-free-png.png" class="wallet-logo mb-1"><br><small>GoPay</small></div></div>
                             <div class="col-3 col-md-3"><div class="card wallet-card p-2 border-primary" onclick="selectPayment('QRIS', QRIS_IMAGE_URL, 'Semua Bank / E-Wallet')"><img src="https://www.freepng.com/uploads/images/202512/uick-response-code-indonesia-standard-qris-logo-vector-png_1020x.jpg" class="wallet-logo mb-1"><br><small>QRIS</small></div></div>
                         </div>
-
                         <div id="paymentDetail" class="alert alert-info d-none"></div>
-
                         <div class="mb-3">
                             <label class="form-label">URL Bukti Pembayaran</label>
                             <input type="text" id="co_bukti" class="form-control" placeholder="Link Dropbox, Google, encrypted-tbn, atau URL gambar">
-                            <div class="form-text">Bisa menggunakan link Dropbox, Google, encrypted-tbn0.gstatic.com, dan URL gambar lainnya.</div>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Atau Pilih File Lokal</label>
                             <input type="file" id="co_bukti_file" class="form-control" accept="image/*">
-                            <div class="form-text">Gambar lokal akan diubah menjadi data gambar agar dapat dikirim ke Spreadsheet. Gunakan gambar berukuran kecil.</div>
                             <div id="co_bukti_preview" class="mt-2"></div>
                         </div>
-
                         <div class="form-check mb-3 p-3 border rounded">
                             <input class="form-check-input" type="checkbox" id="co_verifikasi" required>
                             <label class="form-check-label" for="co_verifikasi">Saya sudah melakukan pembayaran & melampirkan bukti.</label>
@@ -211,6 +227,19 @@
                         <button type="button" class="btn btn-primary w-100" onclick="prosesCheckout()"><i class="bi bi-send-check"></i> Kirim Bukti Bayar</button>
                     </form>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal QR Tiket -->
+    <div class="modal fade" id="qrTicketModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="bi bi-qr-code"></i> QR Code Tiket</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body text-center" id="qrTicketBody"></div>
             </div>
         </div>
     </div>
@@ -225,9 +254,65 @@
                 </div>
                 <div class="modal-body">
                     <input type="hidden" id="ubah_id_pesanan">
-                    <div class="alert alert-info"><i class="bi bi-info-circle"></i> Pengajuan perubahan akan dikirim ke Admin untuk diverifikasi.</div>
-                    <div class="mb-3"><label class="form-label">Alasan Ubah Pesanan</label><textarea id="ubah_alasan" class="form-control" rows="3" required></textarea></div>
+                    <div class="alert alert-info"><i class="bi bi-info-circle"></i> Tulis alasan perubahan pesanan Anda. Admin akan meninjau pengajuan Anda. Jika disetujui, Anda dapat mengedit pesanan.</div>
+                    <div class="mb-3">
+                        <label class="form-label">Alasan Ubah Pesanan *</label>
+                        <textarea id="ubah_alasan" class="form-control" rows="4" required placeholder="Contoh: Ingin mengubah jumlah tiket karena ada teman yang ikut..."></textarea>
+                    </div>
                     <button type="button" class="btn btn-primary w-100" onclick="kirimAjuanUbah()"><i class="bi bi-send"></i> Kirim Pengajuan</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Edit Pesanan -->
+    <div class="modal fade" id="editPesananModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="bi bi-pencil-square"></i> Edit Pesanan</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="edit_id_pesanan">
+                    <input type="hidden" id="edit_id_tiket">
+                    <input type="hidden" id="edit_harga">
+                    <div class="alert alert-success"><i class="bi bi-check-circle"></i> Admin telah memberikan izin edit. Silakan ubah data pesanan Anda di bawah ini.</div>
+                    <div class="mb-3"><label class="form-label">ID Pesanan</label><input type="text" id="edit_id_pesanan_display" class="form-control" readonly></div>
+                    <div class="mb-3"><label class="form-label">Nama Tiket</label><input type="text" id="edit_nama_tiket" class="form-control" readonly></div>
+                    <div class="row mb-2">
+                        <div class="col-6 mb-3"><label class="form-label">Jumlah Tiket</label><input type="number" id="edit_jumlah" class="form-control" min="1" value="1" required oninput="hitungTotalEdit()"></div>
+                        <div class="col-6 mb-3"><label class="form-label">Total Baru (Rp)</label><input type="text" id="edit_total" class="form-control fw-bold text-success" readonly></div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Metode Pembayaran Baru</label>
+                        <select id="edit_metode" class="form-control">
+                            <option value="">Pilih Metode...</option>
+                            <option value="DANA">DANA</option>
+                            <option value="ShopeePay">ShopeePay</option>
+                            <option value="GoPay">GoPay</option>
+                            <option value="QRIS">QRIS</option>
+                            <option value="Transfer Bank">Transfer Bank</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">URL Bukti Pembayaran Baru</label>
+                        <input type="text" id="edit_bukti" class="form-control" placeholder="URL gambar bukti pembayaran baru">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Atau Pilih File Lokal Baru</label>
+                        <input type="file" id="edit_bukti_file" class="form-control" accept="image/*">
+                        <div id="edit_bukti_preview" class="mt-2"></div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">No HP</label>
+                        <input type="text" id="edit_no_hp" class="form-control" placeholder="No HP aktif">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Alamat</label>
+                        <textarea id="edit_alamat" class="form-control" rows="2" placeholder="Alamat lengkap"></textarea>
+                    </div>
+                    <button type="button" class="btn btn-success w-100" onclick="simpanEditPesanan()"><i class="bi bi-check2-circle"></i> Simpan Perubahan</button>
                 </div>
             </div>
         </div>
@@ -235,18 +320,16 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyuy_-CWrHqzgG7k4gzOS5NjbWOCtPeQ-ISDiCVk-Tq0Y14fNsMNyJ0f1jmM4YpaahT/exec"; // GANTI INI
-        
-        // =======================================================
-        // UBAH URL QR CODE DI SINI (Bisa link atau Base64 gambar)
-        // =======================================================
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzbovt39rmQJ74Zo_WX3Z2Xgl5dU2oA8LPEUQrmdUWdapIWnEM4QmajT6POW-PG3O8t/exec"; // GANTI INI
         const QRIS_IMAGE_URL = "qr.png";
-        
         let autoRefreshInterval;
+        
+        // Cache data untuk search
+        let allEvents = [];
+        let allRiwayat = [];
+        let allTiketSaya = [];
+        let allTiketMaster = [];
 
-        // =======================================================
-        // HELPER: Tutup navbar di mobile setelah klik menu
-        // =======================================================
         function closeNavbar() {
             const navbarCollapse = document.getElementById('navbarNav');
             if (navbarCollapse && navbarCollapse.classList.contains('show')) {
@@ -255,42 +338,48 @@
             }
         }
 
-        // =======================================================
-        // HELPER: Ambil nama user dari berbagai kemungkinan field
-        // Perbaikan utama: handle berbagai format field dari Spreadsheet
-        // =======================================================
+        // =====================================================
+        // HELPER: SEARCH UTILITIES
+        // =====================================================
+        function clearSearch(inputId, filterFn) {
+            const input = document.getElementById(inputId);
+            input.value = '';
+            const clearBtn = input.parentElement.querySelector('.clear-btn');
+            if (clearBtn) clearBtn.style.display = 'none';
+            if (typeof window[filterFn] === 'function') window[filterFn]();
+        }
+
+        function toggleClearBtn(input) {
+            const clearBtn = input.parentElement.querySelector('.clear-btn');
+            if (clearBtn) clearBtn.style.display = input.value ? 'block' : 'none';
+        }
+
+        function highlightMatch(text, query) {
+            if (!query || !text) return text;
+            const regex = new RegExp('(' + query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi');
+            return String(text).replace(regex, '<span class="highlight">$1</span>');
+        }
+
+        function escapeRegExp(string) {
+            return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        }
+
+        // =====================================================
+        // PROFILE & AUTH (sama seperti sebelumnya)
+        // =====================================================
         function extractUserName(userData) {
             if (!userData) return '';
-            // Cek berbagai kemungkinan field untuk nama
-            const possibleFields = [
-                'nama_pemesan', 'NAMA_PEMESAN', 'Nama_Pemesan',
-                'nama', 'NAMA', 'Nama',
-                'name', 'NAME', 'Name',
-                'nama_lengkap', 'NAMA_LENGKAP',
-                'fullname', 'FULLNAME',
-                'displayName', 'displayName'
-            ];
-            for (const field of possibleFields) {
-                if (userData[field] && String(userData[field]).trim() !== '') {
-                    return String(userData[field]).trim();
-                }
-            }
+            const fields = ['nama_pemesan', 'NAMA_PEMESAN', 'nama', 'NAMA', 'name', 'NAME', 'nama_lengkap', 'NAMA_LENGKAP'];
+            for (const f of fields) { if (userData[f] && String(userData[f]).trim() !== '') return String(userData[f]).trim(); }
             return '';
         }
 
         function extractUserField(userData, fieldOptions) {
             if (!userData) return '';
-            for (const field of fieldOptions) {
-                if (userData[field] !== undefined && userData[field] !== null && String(userData[field]).trim() !== '') {
-                    return String(userData[field]).trim();
-                }
-            }
+            for (const f of fieldOptions) { if (userData[f] !== undefined && userData[f] !== null && String(userData[f]).trim() !== '') return String(userData[f]).trim(); }
             return '';
         }
 
-        // =======================================================
-        // PROFILE & AUTH
-        // =======================================================
         function openProfileModal() {
             const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
             if (isLoggedIn) fetchUserProfile();
@@ -298,44 +387,26 @@
             new bootstrap.Modal(document.getElementById('profileModal')).show();
         }
 
-        // Ambil data profil terbaru dari Spreadsheet
         async function fetchUserProfile() {
             const localData = JSON.parse(localStorage.getItem('userData') || '{}');
             if (!localData.username && !localData.email) return renderAuthTabs();
-            
             document.getElementById('profileBody').innerHTML = `<div class="text-center py-4"><div class="spinner-border text-primary"></div><p class="mt-2 text-muted">Memuat data profil...</p></div>`;
-            
             try {
                 const username = localData.username || '';
                 const password = localData.password || '';
                 const res = await fetch(`${SCRIPT_URL}?action=login&username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`);
                 const data = await res.json();
                 if (data.success && data.data) {
-                    // Merge data lama & baru untuk memastikan tidak ada field yang hilang
                     const mergedData = Object.assign({}, localData, data.data);
                     localStorage.setItem('userData', JSON.stringify(mergedData));
                     renderProfileView(mergedData);
-                    // Update nav text juga
                     const nama = extractUserName(mergedData);
                     if (nama) document.getElementById('navProfileText').innerText = nama;
                 } else {
-                    // Tetap tampilkan data lokal, jangan langsung logout
-                    if (extractUserName(localData)) {
-                        renderProfileView(localData);
-                    } else {
-                        doLogout();
-                        alert("Sesi telah berakhir, silakan login kembali.");
-                    }
+                    if (extractUserName(localData)) renderProfileView(localData);
+                    else { doLogout(); alert("Sesi telah berakhir, silakan login kembali."); }
                 }
-            } catch(e) {
-                console.error('fetchUserProfile error:', e);
-                // Fallback ke local jika offline
-                if (extractUserName(localData)) {
-                    renderProfileView(localData);
-                } else {
-                    renderAuthTabs();
-                }
-            }
+            } catch(e) { if (extractUserName(localData)) renderProfileView(localData); else renderAuthTabs(); }
         }
 
         function renderProfileView(userData) {
@@ -345,7 +416,6 @@
             const email = extractUserField(userData, ['email', 'EMAIL', 'Email']) || '-';
             const no_hp = extractUserField(userData, ['no_hp', 'NO_HP', 'No_HP', 'nohp', 'NOHP', 'phone', 'PHONE']) || '-';
             const alamat = extractUserField(userData, ['alamat', 'ALAMAT', 'Alamat', 'address', 'ADDRESS']) || '-';
-            
             document.getElementById('profileBody').innerHTML = `
                 <div class="text-center mb-4">
                     <div style="width: 80px; height: 80px; margin: 0 auto; background: linear-gradient(135deg, var(--primary), var(--secondary)); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
@@ -354,20 +424,17 @@
                     <h4 class="mt-3 mb-1" style="color: var(--primary); word-break: break-word;">${nama}</h4>
                     <p class="text-muted mb-0 small">Status: <span class="badge bg-success">Aktif</span></p>
                 </div>
-                <div class="table-responsive">
-                    <table class="table table-borderless">
-                        <tr><td class="text-muted fw-bold">Username</td><td class="text-break">: ${username}</td></tr>
-                        <tr><td class="text-muted fw-bold">Nama Pemesan</td><td class="text-break">: ${nama}</td></tr>
-                        <tr><td class="text-muted fw-bold">Email</td><td class="text-break">: ${email}</td></tr>
-                        <tr><td class="text-muted fw-bold">No HP</td><td>: ${no_hp}</td></tr>
-                        <tr><td class="text-muted fw-bold">Alamat</td><td class="text-break">: ${alamat}</td></tr>
-                    </table>
-                </div>
+                <div class="table-responsive"><table class="table table-borderless">
+                    <tr><td class="text-muted fw-bold">Username</td><td class="text-break">: ${username}</td></tr>
+                    <tr><td class="text-muted fw-bold">Nama</td><td class="text-break">: ${nama}</td></tr>
+                    <tr><td class="text-muted fw-bold">Email</td><td class="text-break">: ${email}</td></tr>
+                    <tr><td class="text-muted fw-bold">No HP</td><td>: ${no_hp}</td></tr>
+                    <tr><td class="text-muted fw-bold">Alamat</td><td class="text-break">: ${alamat}</td></tr>
+                </table></div>
                 <div class="d-flex gap-2 mt-3 flex-column flex-sm-row">
                     <button class="btn btn-warning w-100" onclick="renderProfileEdit()"><i class="bi bi-pencil"></i> Edit Profile</button>
                     <button class="btn btn-danger w-100" onclick="doLogout()"><i class="bi bi-box-arrow-right"></i> Logout</button>
-                </div>
-            `;
+                </div>`;
         }
 
         function renderProfileEdit() {
@@ -377,7 +444,6 @@
             const no_hp = extractUserField(userData, ['no_hp', 'NO_HP', 'No_HP', 'nohp', 'NOHP', 'phone', 'PHONE']);
             const alamat = extractUserField(userData, ['alamat', 'ALAMAT', 'Alamat', 'address', 'ADDRESS']);
             const username = extractUserField(userData, ['username', 'USERNAME', 'Username']);
-            
             document.getElementById('profileBody').innerHTML = `
                 <form id="editProfileForm">
                     <div class="mb-3"><label class="form-label">Username</label><input type="text" class="form-control" value="${username}" readonly disabled></div>
@@ -389,13 +455,11 @@
                         <button type="button" class="btn btn-secondary w-100" onclick="renderProfileView()">Batal</button>
                         <button type="button" class="btn btn-primary w-100" onclick="saveProfileChanges()"><i class="bi bi-save"></i> Simpan</button>
                     </div>
-                </form>
-            `;
+                </form>`;
         }
 
         async function saveProfileChanges() {
-            const btn = event.target;
-            btn.disabled = true; btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Menyimpan...';
+            const btn = event.target; btn.disabled = true; btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Menyimpan...';
             const oldData = JSON.parse(localStorage.getItem('userData') || '{}');
             const newPayload = {
                 username: oldData.username || extractUserField(oldData, ['username', 'USERNAME', 'Username']), 
@@ -405,11 +469,9 @@
                 no_hp: document.getElementById('prof_hp').value, 
                 alamat: document.getElementById('prof_alamat').value
             };
-            
             if(!newPayload.nama_pemesan || !newPayload.email || !newPayload.no_hp || !newPayload.alamat) { 
                 btn.disabled = false; btn.innerHTML = '<i class="bi bi-save"></i> Simpan'; return alert("Lengkapi semua data!"); 
             }
-            
             try {
                 const res = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({action: 'updateProfile', payload: newPayload}), headers: { 'Content-Type': 'text/plain;charset=utf-8' } });
                 const data = await res.json();
@@ -418,10 +480,8 @@
                     localStorage.setItem('userData', JSON.stringify(mergedData)); 
                     alert("Profil berhasil diperbarui!"); 
                     renderProfileView(mergedData); 
-                    // Update nav text
                     document.getElementById('navProfileText').innerText = mergedData.nama_pemesan || 'Profile';
-                }
-                else { alert("Gagal update: " + data.message); }
+                } else { alert("Gagal update: " + data.message); }
             } catch(e) { alert("Koneksi gagal"); }
             btn.disabled = false; btn.innerHTML = '<i class="bi bi-save"></i> Simpan';
         }
@@ -434,8 +494,8 @@
                 </ul>
                 <div class="tab-content">
                     <div class="tab-pane fade show active" id="pLogin">
-                        <div class="mb-3"><label class="form-label">Username</label><input type="text" id="loginUsername" class="form-control" placeholder="Masukkan Username" autocomplete="username"></div>
-                        <div class="mb-3"><label class="form-label">Password</label><input type="password" id="loginPassword" class="form-control" placeholder="Masukkan Password" autocomplete="current-password"></div>
+                        <div class="mb-3"><label class="form-label">Username</label><input type="text" id="loginUsername" class="form-control" placeholder="Masukkan Username"></div>
+                        <div class="mb-3"><label class="form-label">Password</label><input type="password" id="loginPassword" class="form-control" placeholder="Masukkan Password"></div>
                         <button class="btn btn-primary w-100" onclick="doLogin()"><i class="bi bi-box-arrow-in-right"></i> Login</button>
                     </div>
                     <div class="tab-pane fade" id="pReg">
@@ -447,8 +507,7 @@
                         <div class="mb-3"><label class="form-label">Alamat</label><textarea class="form-control" id="regAlamat" rows="2" required></textarea></div>
                         <button class="btn btn-primary w-100" onclick="doRegister()"><i class="bi bi-person-plus"></i> Daftar Sekarang</button>
                     </div>
-                </div>
-            `;
+                </div>`;
         }
 
         async function doRegister() {
@@ -462,8 +521,7 @@
                 alamat: document.getElementById('regAlamat').value 
             };
             if(!payload.username || !payload.password || !payload.nama_pemesan) { 
-                btn.disabled = false; btn.innerHTML = '<i class="bi bi-person-plus"></i> Daftar Sekarang'; 
-                return alert("Lengkapi data wajib!"); 
+                btn.disabled = false; btn.innerHTML = '<i class="bi bi-person-plus"></i> Daftar Sekarang'; return alert("Lengkapi data wajib!"); 
             }
             try {
                 const res = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({action: 'register', payload: payload}), headers: { 'Content-Type': 'text/plain;charset=utf-8' } });
@@ -487,24 +545,20 @@
                 const res = await fetch(`${SCRIPT_URL}?action=login&username=${encodeURIComponent(u)}&password=${encodeURIComponent(p)}`);
                 const data = await res.json();
                 if (data.success && data.data) { 
-                    // Simpan password juga agar bisa re-fetch profil
                     const userDataWithPass = Object.assign({}, data.data, { password: p, username: u });
                     localStorage.setItem('isLoggedIn', 'true'); 
                     localStorage.setItem('userData', JSON.stringify(userDataWithPass)); 
                     bootstrap.Modal.getInstance(document.getElementById('profileModal')).hide(); 
                     checkUIState(); 
-                }
-                else { alert("Login gagal! Username atau Password salah."); }
+                } else { alert("Login gagal! Username atau Password salah."); }
             } catch(e) { alert("Koneksi gagal"); }
             btn.disabled = false; btn.innerHTML = '<i class="bi bi-box-arrow-in-right"></i> Login';
         }
 
         function doLogout() { 
-            localStorage.removeItem('isLoggedIn'); 
-            localStorage.removeItem('userData'); 
+            localStorage.removeItem('isLoggedIn'); localStorage.removeItem('userData'); 
             const modal = bootstrap.Modal.getInstance(document.getElementById('profileModal'));
-            if (modal) modal.hide(); 
-            checkUIState(); 
+            if (modal) modal.hide(); checkUIState(); 
         }
 
         function checkUIState() {
@@ -513,66 +567,76 @@
             if (isLoggedIn) { 
                 const userData = JSON.parse(localStorage.getItem('userData') || '{}'); 
                 const nama = extractUserName(userData);
-                navText.innerText = nama || 'Profile'; 
-                initApp(); 
-            }
-            else { 
+                navText.innerText = nama || 'Profile'; initApp(); 
+            } else { 
                 navText.innerText = 'Login'; 
                 if (autoRefreshInterval) clearInterval(autoRefreshInterval); 
                 document.getElementById('eventList').innerHTML = `<div class="col-12 text-center text-muted mt-5 py-5"><i class="bi bi-lock-fill" style="font-size: 3rem;"></i><p class="mt-3">Silakan login terlebih dahulu.</p><button class="btn btn-primary mt-2" onclick="openProfileModal()"><i class="bi bi-box-arrow-in-right"></i> Login</button></div>`; 
-                document.getElementById('riwayatList').innerHTML = `<tr><td colspan="6" class="text-center text-muted py-4">Belum login.</td></tr>`; 
+                document.getElementById('riwayatList').innerHTML = `<tr><td colspan="6" class="text-center text-muted py-4">Belum login.</td></tr>`;
+                document.getElementById('tiketSayaList').innerHTML = `<div class="col-12 text-center text-muted mt-5 py-5"><i class="bi bi-lock-fill" style="font-size: 3rem;"></i><p class="mt-3">Silakan login terlebih dahulu.</p></div>`;
             }
         }
 
-        // --- APP INIT ---
         function initApp() { 
-            showPage('eventPage'); 
-            fetchEvents(); 
-            fetchRiwayat(); 
+            showPage('eventPage'); fetchEvents(); fetchRiwayat(); fetchTiketSaya();
             autoRefreshInterval = setInterval(() => { 
-                if (document.visibilityState === 'visible') {
-                    fetchEvents(); 
-                    fetchRiwayat();
-                }
+                if (document.visibilityState === 'visible') { fetchEvents(); fetchRiwayat(); fetchTiketSaya(); }
             }, 30000); 
         }
         
         function showPage(pageId) { 
-            document.getElementById('eventPage').style.display = 'none'; 
-            document.getElementById('riwayatPage').style.display = 'none'; 
+            ['eventPage', 'riwayatPage', 'tiketSayaPage'].forEach(p => document.getElementById(p).style.display = 'none'); 
             document.getElementById(pageId).style.display = 'block'; 
-            document.getElementById('navEvent').classList.remove('active'); 
-            document.getElementById('navRiwayat').classList.remove('active'); 
+            ['navEvent', 'navRiwayat', 'navTiketSaya'].forEach(n => document.getElementById(n).classList.remove('active'));
             if (pageId === 'eventPage') document.getElementById('navEvent').classList.add('active'); 
             if (pageId === 'riwayatPage') document.getElementById('navRiwayat').classList.add('active');
+            if (pageId === 'tiketSayaPage') document.getElementById('navTiketSaya').classList.add('active');
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        // --- FETCH & RENDER EVENTS ---
+        // =====================================================
+        // EVENT LIST + SEARCH
+        // =====================================================
         async function fetchEvents() { 
             if (localStorage.getItem('isLoggedIn') !== 'true') return; 
             try { 
                 const res = await fetch(`${SCRIPT_URL}?action=getData&sheet=Sheet1`); 
                 const data = await res.json(); 
-                renderEvents(data.data || []); 
+                allEvents = data.data || [];
+                filterEvents(); 
             } catch (err) { 
-                console.error(err); 
-                document.getElementById('eventList').innerHTML = `<div class="col-12 text-center text-muted py-5"><i class="bi bi-wifi-off" style="font-size: 2rem;"></i><p class="mt-2">Gagal memuat data. Periksa koneksi internet.</p></div>`;
+                document.getElementById('eventList').innerHTML = `<div class="col-12 text-center text-muted py-5"><i class="bi bi-wifi-off" style="font-size: 2rem;"></i><p class="mt-2">Gagal memuat data.</p></div>`;
             } 
         }
         
+        function filterEvents() {
+            const query = document.getElementById('searchEvent').value.trim().toLowerCase();
+            toggleClearBtn(document.getElementById('searchEvent'));
+            const meta = document.getElementById('searchEventMeta');
+            
+            let filtered = allEvents;
+            if (query) {
+                filtered = allEvents.filter(evt => {
+                    const id = String(evt.ID_EVENT || '').toLowerCase();
+                    const nama = String(evt.NAMA_EVENT || '').toLowerCase();
+                    const lokasi = String(evt.LOKASI || '').toLowerCase();
+                    return id.includes(query) || nama.includes(query) || lokasi.includes(query);
+                });
+            }
+            
+            if (meta) {
+                if (query) meta.innerHTML = `<i class="bi bi-funnel"></i> Menampilkan <b>${filtered.length}</b> dari <b>${allEvents.length}</b> event`;
+                else meta.innerHTML = '';
+            }
+            
+            renderEvents(filtered, query);
+        }
+
         function extractGoogleDriveId(url) {
             if (!url) return "";
             const text = String(url).trim();
-            const patterns = [
-                /\/file\/d\/([a-zA-Z0-9_-]+)/i,
-                /\/d\/([a-zA-Z0-9_-]+)/i,
-                /[?&]id=([a-zA-Z0-9_-]+)/i
-            ];
-            for (const pattern of patterns) {
-                const match = text.match(pattern);
-                if (match && match[1]) return match[1];
-            }
+            const patterns = [/\/file\/d\/([a-zA-Z0-9_-]+)/i, /\/d\/([a-zA-Z0-9_-]+)/i, /[?&]id=([a-zA-Z0-9_-]+)/i];
+            for (const p of patterns) { const m = text.match(p); if (m && m[1]) return m[1]; }
             return "";
         }
 
@@ -581,60 +645,52 @@
             if (url === null || url === undefined) return placeholder;
             let raw = String(url).trim();
             if (!raw) return placeholder;
-
             const urlMatch = raw.match(/https?:\/\/[^\s"'<>]+/i);
-            let u = (urlMatch ? urlMatch[0] : raw).trim();
-            u = u.replace(/^[("'`\s]+|[)"'`,;\s]+$/g, "");
-
+            let u = (urlMatch ? urlMatch[0] : raw).trim().replace(/^[("'`\s]+|[)"'`,;\s]+$/g, "");
             if (/^data:image\/[a-zA-Z0-9.+-]+;base64,/i.test(u)) return u;
             if (!/^https?:\/\//i.test(u)) return placeholder;
-
             try {
                 const parsed = new URL(u);
                 const host = parsed.hostname.toLowerCase();
                 const googleId = extractGoogleDriveId(u);
-                if (googleId && (host.includes("drive.google.com") || host.includes("docs.google.com") || host.includes("googleusercontent.com"))) {
-                    return `https://drive.google.com/thumbnail?id=${encodeURIComponent(googleId)}&sz=w1200`;
-                }
-                if (host.includes("encrypted-tbn0.gstatic.com") || host.includes("encrypted-tbn1.gstatic.com") || host.includes("encrypted-tbn2.gstatic.com") || host.includes("encrypted-tbn3.gstatic.com")) return u;
-                if (host.includes("googleusercontent.com")) return u;
-                if (host.includes("dropbox.com")) {
-                    parsed.searchParams.delete("dl");
-                    parsed.searchParams.set("raw", "1");
-                    return parsed.toString();
-                }
-                if (host === "github.com" && parsed.pathname.includes("/blob/")) {
-                    const parts = parsed.pathname.split("/").filter(Boolean);
-                    if (parts.length >= 5 && parts[2] === "blob") return `https://raw.githubusercontent.com/${parts[0]}/${parts[1]}/${parts.slice(3).join("/")}`;
-                }
+                if (googleId && (host.includes("drive.google.com") || host.includes("docs.google.com") || host.includes("googleusercontent.com"))) return `https://drive.google.com/thumbnail?id=${encodeURIComponent(googleId)}&sz=w1200`;
+                if (host.includes("encrypted-tbn") || host.includes("googleusercontent.com")) return u;
+                if (host.includes("dropbox.com")) { parsed.searchParams.delete("dl"); parsed.searchParams.set("raw", "1"); return parsed.toString(); }
                 return u;
-            } catch (error) {
-                console.warn("URL gambar tidak valid:", url, error);
-                return placeholder;
-            }
+            } catch (error) { return placeholder; }
         }
 
         function imageError(img, size = "400x200") {
             const googleId = img.dataset.googleId;
-            if (googleId && img.dataset.googleFallback !== "1") {
-                img.dataset.googleFallback = "1";
-                img.src = `https://lh3.googleusercontent.com/d/${encodeURIComponent(googleId)}=w1200`;
-                return;
-            }
-            img.onerror = null;
-            img.src = `https://placehold.co/${size}/f1f5f9/64748b?text=Image+Error`;
+            if (googleId && img.dataset.googleFallback !== "1") { img.dataset.googleFallback = "1"; img.src = `https://lh3.googleusercontent.com/d/${encodeURIComponent(googleId)}=w1200`; return; }
+            img.onerror = null; img.src = `https://placehold.co/${size}/f1f5f9/64748b?text=Image+Error`;
         }
 
-        function renderEvents(events) {
+        function renderEvents(events, query = '') {
             const container = document.getElementById('eventList');
             if (!events.length) { 
-                container.innerHTML = `<div class="col-12 text-center text-muted py-5"><i class="bi bi-inbox" style="font-size: 2rem;"></i><p class="mt-2">Tidak ada event tersedia.</p></div>`; 
-                return; 
+                container.innerHTML = `<div class="col-12 text-center text-muted py-5"><i class="bi bi-inbox" style="font-size: 2rem;"></i><p class="mt-2">${query ? 'Tidak ada event yang cocok dengan pencarian.' : 'Tidak ada event tersedia.'}</p></div>`; return; 
             }
             container.innerHTML = events.map(evt => {
-                const img = fixImgUrl(evt.GAMBAR), safeEventName = (evt.NAMA_EVENT || "").replace(/'/g, "\\'");
-                return `<div class="col-12 col-md-6 mb-3 mb-md-4"><div class="card h-100"><img src="${img}" class="event-img" alt="${evt.NAMA_EVENT}" data-google-id="${extractGoogleDriveId(evt.GAMBAR)}" onerror="imageError(this, '400x200')"><div class="card-body d-flex flex-column"><span class="badge bg-secondary mb-2 align-self-start">${evt.STATUS}</span><h4 class="card-title" style="color: var(--primary)">${evt.NAMA_EVENT}</h4><p class="text-muted mb-1 small"><i class="bi bi-calendar-event"></i> ${formatDate(evt.TANGGAL)}</p><p class="text-muted mb-2 small"><i class="bi bi-geo-alt"></i> ${evt.LOKASI}</p><p class="card-text flex-grow-1">${evt.DESKRIPSI_ACARA}</p><button class="btn btn-primary mt-3" onclick="openTicketModal('${evt.ID_EVENT}', '${safeEventName}')"><i class="bi bi-ticket-perforated"></i> Lihat Tiket & Pesan</button></div></div></div>`;
+                const img = fixImgUrl(evt.GAMBAR);
+                const safeEventName = (evt.NAMA_EVENT || "").replace(/'/g, "\\'");
+                const qrUrl = evt.QR_EVENT || `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=EVENT:${encodeURIComponent(evt.ID_EVENT)}`;
+                const hlId = query ? highlightMatch(evt.ID_EVENT, query) : evt.ID_EVENT;
+                const hlNama = query ? highlightMatch(evt.NAMA_EVENT, query) : evt.NAMA_EVENT;
+                const hlLokasi = query ? highlightMatch(evt.LOKASI, query) : evt.LOKASI;
+                return `<div class="col-12 col-md-6 mb-3 mb-md-4"><div class="card h-100"><img src="${img}" class="event-img" alt="${evt.NAMA_EVENT}" data-google-id="${extractGoogleDriveId(evt.GAMBAR)}" onerror="imageError(this, '400x200')"><div class="card-body d-flex flex-column"><span class="badge bg-secondary mb-2 align-self-start">${evt.STATUS}</span><h4 class="card-title" style="color: var(--primary)">${hlNama}</h4><p class="text-muted mb-1 small"><i class="bi bi-calendar-event"></i> ${formatDate(evt.TANGGAL)}</p><p class="text-muted mb-2 small"><i class="bi bi-geo-alt"></i> ${hlLokasi}</p><p class="text-muted small mb-2"><i class="bi bi-hash"></i> ID: <b>${hlId}</b></p><p class="card-text flex-grow-1">${evt.DESKRIPSI_ACARA}</p><div class="d-flex gap-2 mt-3"><button class="btn btn-primary flex-grow-1" onclick="openTicketModal('${evt.ID_EVENT}', '${safeEventName}')"><i class="bi bi-ticket-perforated"></i> Lihat Tiket</button><button class="btn btn-outline-primary" onclick="showEventQR('${evt.ID_EVENT}', '${safeEventName}', '${qrUrl}')"><i class="bi bi-qr-code"></i></button></div></div></div></div>`;
             }).join('');
+        }
+
+        function showEventQR(idEvent, namaEvent, qrUrl) {
+            document.getElementById('qrTicketBody').innerHTML = `<h5 class="mb-3" style="color: var(--primary)">${namaEvent}</h5><p class="text-muted small">ID Event: <b>${idEvent}</b></p><img src="${qrUrl}" class="qr-display mx-auto d-block mb-3" alt="QR"><p class="text-muted small">Scan QR ini untuk informasi event</p><button class="btn btn-success w-100" onclick="downloadQR('${qrUrl}', 'QR_Event_${idEvent}')"><i class="bi bi-download"></i> Download QR</button>`;
+            new bootstrap.Modal(document.getElementById('qrTicketModal')).show();
+        }
+
+        function downloadQR(url, filename) {
+            fetch(url).then(r => r.blob()).then(blob => {
+                const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = filename + '.png'; a.click(); URL.revokeObjectURL(a.href);
+            }).catch(() => { const a = document.createElement('a'); a.href = url; a.download = filename + '.png'; a.target = '_blank'; a.click(); });
         }
 
         async function openTicketModal(eventId, eventName) {
@@ -646,20 +702,20 @@
                 const res = await fetch(`${SCRIPT_URL}?action=getData&sheet=Sheet2`);
                 const data = await res.json();
                 const tickets = (data.data || []).filter(t => String(t.ID_EVENT).trim() === String(eventId).trim() && Number(t.KUOTA) > 0 && t.STATUS === 'AKTIF');
-                if (!tickets.length) { 
-                    document.getElementById('ticketList').innerHTML = `<div class="alert alert-warning text-center"><i class="bi bi-exclamation-triangle"></i> Tiket tidak tersedia atau kuota habis.</div>`; 
-                    return; 
-                }
+                if (!tickets.length) { document.getElementById('ticketList').innerHTML = `<div class="alert alert-warning text-center"><i class="bi bi-exclamation-triangle"></i> Tiket tidak tersedia.</div>`; return; }
                 document.getElementById('ticketList').innerHTML = tickets.map(t => {
                     const img = fixImgUrl(t.GAMBAR);
-                    return `<div class="card mb-3 border-0 shadow-sm"><div class="card-body d-flex align-items-center"><img src="${img}" class="ticket-img me-3" alt="Tiket" data-google-id="${extractGoogleDriveId(t.GAMBAR)}" onerror="imageError(this, '80x80')"><div class="flex-grow-1"><h5 class="mb-1" style="color: var(--primary)">${t.NAMA_TIKET}</h5><p class="mb-1 text-muted small">${t.DESKRIPSI || ''}</p><p class="mb-1 fw-bold" style="color: var(--accent)">Rp ${Number(t.HARGA).toLocaleString('id-ID')}</p><span class="badge bg-light text-dark border">Sisa: ${t.KUOTA}</span></div><button class="btn btn-sm btn-primary ms-2" onclick="openCheckoutModal('${t.ID_TIKET}', '${t.NAMA_TIKET}', ${t.HARGA})">Pesan</button></div></div>`;
+                    const qrUrl = t.QR_TIKET || `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=TIKET:${encodeURIComponent(t.ID_TIKET)}`;
+                    return `<div class="card mb-3 border-0 shadow-sm"><div class="card-body d-flex align-items-center"><img src="${img}" class="ticket-img me-3" alt="Tiket" data-google-id="${extractGoogleDriveId(t.GAMBAR)}" onerror="imageError(this, '80x80')"><div class="flex-grow-1"><h5 class="mb-1" style="color: var(--primary)">${t.NAMA_TIKET}</h5><p class="mb-1 text-muted small">${t.DESKRIPSI || ''}</p><p class="mb-1 fw-bold" style="color: var(--accent)">Rp ${Number(t.HARGA).toLocaleString('id-ID')}</p><span class="badge bg-light text-dark border">Sisa: ${t.KUOTA}</span></div><div class="d-flex flex-column gap-1 ms-2"><button class="btn btn-sm btn-primary" onclick="openCheckoutModal('${t.ID_TIKET}', '${t.NAMA_TIKET}', ${t.HARGA})">Pesan</button><button class="btn btn-sm btn-outline-primary" onclick="showTicketQR('${t.ID_TIKET}', '${t.NAMA_TIKET}', '${qrUrl}')"><i class="bi bi-qr-code"></i></button></div></div></div>`;
                 }).join('');
-            } catch (err) { 
-                document.getElementById('ticketList').innerHTML = `<div class="alert alert-danger text-center"><i class="bi bi-x-circle"></i> Gagal memuat tiket.</div>`; 
-            }
+            } catch (err) { document.getElementById('ticketList').innerHTML = `<div class="alert alert-danger text-center"><i class="bi bi-x-circle"></i> Gagal memuat tiket.</div>`; }
         }
 
-        // --- CHECKOUT & PEMBAYARAN ---
+        function showTicketQR(idTiket, namaTiket, qrUrl) {
+            document.getElementById('qrTicketBody').innerHTML = `<h5 class="mb-3" style="color: var(--primary)">${namaTiket}</h5><p class="text-muted small">ID Tiket: <b>${idTiket}</b></p><img src="${qrUrl}" class="qr-display mx-auto d-block mb-3" alt="QR"><p class="text-muted small">Scan QR ini untuk verifikasi tiket</p><button class="btn btn-success w-100" onclick="downloadQR('${qrUrl}', 'QR_Tiket_${idTiket}')"><i class="bi bi-download"></i> Download QR</button>`;
+            new bootstrap.Modal(document.getElementById('qrTicketModal')).show();
+        }
+
         function selectPayment(method, number, name) {
             document.getElementById('co_metode').value = method;
             let detailHtml = "";
@@ -669,17 +725,11 @@
             document.getElementById('paymentDetail').classList.remove('d-none');
         }
 
-        // --- BUKTI PEMBAYARAN: URL ATAU FILE LOKAL ---
-        function isImageDataUrl(value) {
-            return typeof value === 'string' && /^data:image\/[a-zA-Z0-9.+-]+;base64,/i.test(value);
-        }
+        function isImageDataUrl(value) { return typeof value === 'string' && /^data:image\/[a-zA-Z0-9.+-]+;base64,/i.test(value); }
 
         function compressLocalImage(file, maxWidth = 800, quality = 0.65) {
             return new Promise((resolve, reject) => {
-                if (!file || !file.type.startsWith('image/')) {
-                    reject(new Error('File harus berupa gambar.'));
-                    return;
-                }
+                if (!file || !file.type.startsWith('image/')) { reject(new Error('File harus berupa gambar.')); return; }
                 const reader = new FileReader();
                 reader.onload = () => {
                     const img = new Image();
@@ -702,22 +752,6 @@
             });
         }
 
-        function previewBuktiPembayaran(value) {
-            const preview = document.getElementById('co_bukti_preview');
-            if (!preview) return;
-            if (!value) {
-                preview.innerHTML = '';
-                return;
-            }
-            const safeUrl = String(value).replace(/"/g, '&quot;');
-            preview.innerHTML = `
-                <div class="small text-muted mb-1">Pratinjau bukti pembayaran:</div>
-                <img src="${safeUrl}" alt="Pratinjau bukti pembayaran"
-                     style="max-width:220px;max-height:220px;object-fit:contain;border:1px solid #ddd;border-radius:8px;padding:4px;"
-                     onerror="this.style.display='none'">
-            `;
-        }
-
         document.addEventListener('change', async function (event) {
             if (event.target && event.target.id === 'co_bukti_file') {
                 const file = event.target.files && event.target.files[0];
@@ -725,90 +759,48 @@
                 try {
                     const dataUrl = await compressLocalImage(file);
                     document.getElementById('co_bukti').value = dataUrl;
-                    previewBuktiPembayaran(dataUrl);
-                } catch (error) {
-                    alert(error.message || 'File gambar tidak dapat diproses.');
-                    event.target.value = '';
-                }
+                } catch (error) { alert(error.message || 'File gambar tidak dapat diproses.'); event.target.value = ''; }
+            }
+            if (event.target && event.target.id === 'edit_bukti_file') {
+                const file = event.target.files && event.target.files[0];
+                if (!file) return;
+                try {
+                    const dataUrl = await compressLocalImage(file);
+                    document.getElementById('edit_bukti').value = dataUrl;
+                    document.getElementById('edit_bukti_preview').innerHTML = `<img src="${dataUrl}" style="max-width:150px;border-radius:5px;">`;
+                } catch (error) { alert(error.message); event.target.value = ''; }
             }
         });
 
-        document.addEventListener('input', function (event) {
-            if (event.target && event.target.id === 'co_bukti') {
-                previewBuktiPembayaran(event.target.value.trim());
-            }
-        });
-
-        // =======================================================
-        // CHECKOUT - Perbaikan utama untuk ambil nama user
-        // =======================================================
         async function openCheckoutModal(idTiket, namaTiket, harga) {
             const localData = JSON.parse(localStorage.getItem('userData') || '{}');
-            
-            // Set values form
             document.getElementById('co_id_tiket').value = idTiket; 
             document.getElementById('co_nama_tiket').value = namaTiket; 
             document.getElementById('co_harga').value = harga; 
             document.getElementById('co_jumlah').value = 1;
-            
-            // ===== PERBAIKAN: Ambil nama dari local storage dulu sebagai fallback =====
             const localNama = extractUserName(localData);
             document.getElementById('co_nama').value = localNama || 'Memuat data...';
-            
             document.getElementById('co_bukti').value = ''; 
             if (document.getElementById('co_bukti_file')) document.getElementById('co_bukti_file').value = ''; 
-            if (document.getElementById('co_bukti_preview')) document.getElementById('co_bukti_preview').innerHTML = ''; 
             document.getElementById('paymentDetail').classList.add('d-none');
             hitungTotal();
-            
-            // Tutup modal tiket, buka modal checkout
             const ticketModal = bootstrap.Modal.getInstance(document.getElementById('ticketModal'));
             if (ticketModal) ticketModal.hide();
-            
-            // Tunggu sebentar agar modal tiket benar-benar tertutup
-            setTimeout(() => {
-                new bootstrap.Modal(document.getElementById('checkoutModal')).show();
-            }, 300);
-
-            // ===== PERBAIKAN UTAMA: Ambil data nama pemesan terbaru dari Spreadsheet =====
-            // Gunakan username ATAU email sebagai identifier
+            setTimeout(() => { new bootstrap.Modal(document.getElementById('checkoutModal')).show(); }, 300);
             const username = localData.username || extractUserField(localData, ['username', 'USERNAME', 'Username']);
             const password = localData.password || '';
-            
             if (username) {
                 try {
                     const res = await fetch(`${SCRIPT_URL}?action=login&username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`);
                     const data = await res.json();
-                    
                     if (data.success && data.data) {
-                        // Merge data lama & baru
                         const mergedData = Object.assign({}, localData, data.data);
-                        // Simpan password & username agar tidak hilang
-                        mergedData.password = password;
-                        mergedData.username = username;
+                        mergedData.password = password; mergedData.username = username;
                         localStorage.setItem('userData', JSON.stringify(mergedData));
-                        
-                        // Ambil nama dari data terbaru
                         const nama = extractUserName(mergedData);
-                        if (nama) {
-                            document.getElementById('co_nama').value = nama;
-                            // Update nav profile text juga
-                            document.getElementById('navProfileText').innerText = nama;
-                        } else {
-                            // Jika nama tidak ditemukan di response, gunakan data lokal
-                            document.getElementById('co_nama').value = localNama || 'Pengguna';
-                        }
-                    } else {
-                        // Login gagal, gunakan data lokal
-                        document.getElementById('co_nama').value = localNama || 'Gagal memuat data';
+                        if (nama) { document.getElementById('co_nama').value = nama; document.getElementById('navProfileText').innerText = nama; }
                     }
-                } catch (err) {
-                    console.error('Error fetching user data:', err);
-                    document.getElementById('co_nama').value = localNama || 'Error Koneksi';
-                }
-            } else {
-                // Tidak ada username, pakai data lokal
-                document.getElementById('co_nama').value = localNama || 'Data tidak ditemukan';
+                } catch (err) {}
             }
         }
 
@@ -818,85 +810,50 @@
             document.getElementById('co_total').value = (jml * hrg).toLocaleString('id-ID'); 
         }
 
+        function hitungTotalEdit() {
+            const jml = parseInt(document.getElementById('edit_jumlah').value) || 0;
+            const hrg = parseInt(document.getElementById('edit_harga').value) || 0;
+            document.getElementById('edit_total').value = (jml * hrg).toLocaleString('id-ID');
+        }
+
         async function prosesCheckout() {
             if (!document.getElementById('co_verifikasi').checked) { return alert("Centang verifikasi terlebih dahulu!"); }
-            const btn = event.target; 
-            btn.disabled = true; 
-            btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Memproses...';
-            
-            // ===== PERBAIKAN: Ambil data user lengkap dari localStorage =====
+            const btn = event.target; btn.disabled = true; btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Memproses...';
             const userData = JSON.parse(localStorage.getItem('userData') || '{}');
-            
-            // Ambil nama pemesan dari form (yang sudah otomatis terisi)
             let namaPemesan = document.getElementById('co_nama').value.trim();
-            
-            // Jika form masih "Memuat data..." atau kosong, ambil dari localStorage
-            if (!namaPemesan || namaPemesan === 'Memuat data...' || namaPemesan === 'Gagal memuat data' || namaPemesan === 'Error Koneksi') {
-                namaPemesan = extractUserName(userData);
-            }
-            
-            // Ambil email, no_hp, alamat dengan multiple field fallback
+            if (!namaPemesan || namaPemesan === 'Memuat data...') namaPemesan = extractUserName(userData);
             const email = extractUserField(userData, ['email', 'EMAIL', 'Email']);
             const no_hp = extractUserField(userData, ['no_hp', 'NO_HP', 'No_HP', 'nohp', 'NOHP', 'phone', 'PHONE']);
             const alamat = extractUserField(userData, ['alamat', 'ALAMAT', 'Alamat', 'address', 'ADDRESS']);
             const username = extractUserField(userData, ['username', 'USERNAME', 'Username']);
-            
             const payload = {
                 ID_PESANAN: "TRX" + Date.now(), 
                 ID_TIKET: document.getElementById('co_id_tiket').value, 
-                USERNAME: username, 
-                NAMA_PEMESAN: namaPemesan,
-                EMAIL: email, 
-                NO_HP: no_hp, 
-                ALAMAT: alamat, 
+                USERNAME: username, NAMA_PEMESAN: namaPemesan,
+                EMAIL: email, NO_HP: no_hp, ALAMAT: alamat, 
                 JUMLAH: parseInt(document.getElementById('co_jumlah').value),
                 TOTAL_HARGA: parseInt(document.getElementById('co_harga').value) * parseInt(document.getElementById('co_jumlah').value),
                 METODE_PEMBAYARAN: document.getElementById('co_metode').value, 
                 BUKTI_PEMBAYRAN: document.getElementById('co_bukti').value,
                 "TANGGAL PESAN": new Date().toLocaleDateString('id-ID'), 
-                STATUS: "Menunggu Verifikasi Admin", 
-                ALASAN_UBAH: ""
+                STATUS: "Menunggu Verifikasi Admin", ALASAN_UBAH: ""
             };
-            
-            // ===== Validasi nama pemesan =====
-            if (!payload.NAMA_PEMESAN || payload.NAMA_PEMESAN === 'Memuat data...' || payload.NAMA_PEMESAN === 'Gagal memuat data' || payload.NAMA_PEMESAN === 'Error Koneksi') { 
-                btn.disabled = false; 
-                btn.innerHTML = '<i class="bi bi-send-check"></i> Kirim Bukti Bayar'; 
-                return alert("Data nama pengguna gagal dimuat. Silakan tutup dan buka kembali halaman checkout, atau perbarui profil Anda."); 
-            }
-            
-            if (!payload.BUKTI_PEMBAYRAN) { 
-                btn.disabled = false; 
-                btn.innerHTML = '<i class="bi bi-send-check"></i> Kirim Bukti Bayar'; 
-                return alert("Masukkan URL gambar atau pilih file bukti pembayaran!"); 
-            }
-            
-            if (isImageDataUrl(payload.BUKTI_PEMBAYRAN) && payload.BUKTI_PEMBAYRAN.length > 49000) { 
-                btn.disabled = false; 
-                btn.innerHTML = '<i class="bi bi-send-check"></i> Kirim Bukti Bayar'; 
-                return alert('Ukuran gambar masih terlalu besar. Pilih gambar yang lebih kecil.'); 
-            }
-            
+            if (!payload.BUKTI_PEMBAYRAN) { btn.disabled = false; btn.innerHTML = '<i class="bi bi-send-check"></i> Kirim Bukti Bayar'; return alert("Masukkan bukti pembayaran!"); }
+            if (isImageDataUrl(payload.BUKTI_PEMBAYRAN) && payload.BUKTI_PEMBAYRAN.length > 49000) { btn.disabled = false; btn.innerHTML = '<i class="bi bi-send-check"></i> Kirim Bukti Bayar'; return alert('Ukuran gambar terlalu besar.'); }
             try {
                 const res = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'checkout', payload }), headers: { 'Content-Type': 'text/plain;charset=utf-8' } });
                 const data = await res.json();
                 if (data.success) { 
-                    alert(data.message); 
-                    bootstrap.Modal.getInstance(document.getElementById('checkoutModal')).hide(); 
-                    fetchEvents(); 
-                    fetchRiwayat(); 
-                    showPage('riwayatPage'); 
-                }
-                else { alert("Error: " + data.message); }
-            } catch(e) { 
-                console.error(e);
-                alert("Koneksi gagal. Silakan coba lagi."); 
-            }
-            btn.disabled = false; 
-            btn.innerHTML = '<i class="bi bi-send-check"></i> Kirim Bukti Bayar';
+                    alert(data.message); bootstrap.Modal.getInstance(document.getElementById('checkoutModal')).hide(); 
+                    fetchEvents(); fetchRiwayat(); fetchTiketSaya(); showPage('riwayatPage'); 
+                } else { alert("Error: " + data.message); }
+            } catch(e) { alert("Koneksi gagal."); }
+            btn.disabled = false; btn.innerHTML = '<i class="bi bi-send-check"></i> Kirim Bukti Bayar';
         }
 
-        // --- RIWAYAT & UBAH PESANAN ---
+        // =====================================================
+        // RIWAYAT + SEARCH
+        // =====================================================
         async function fetchRiwayat() {
             if (localStorage.getItem('isLoggedIn') !== 'true') return;
             try {
@@ -905,35 +862,152 @@
                 const userData = JSON.parse(localStorage.getItem('userData') || '{}');
                 const userEmail = extractUserField(userData, ['email', 'EMAIL', 'Email']);
                 const userNama = extractUserName(userData);
-                
-                // Filter berdasarkan email ATAU nama pemesan
-                const myOrders = (data.data || []).filter(r => {
+                allRiwayat = (data.data || []).filter(r => {
                     const rowEmail = r.EMAIL || r.email || '';
                     const rowNama = r.NAMA_PEMESAN || r.nama_pemesan || r.NAMA || '';
                     return rowEmail === userEmail || rowNama === userNama;
                 });
-                renderRiwayat(myOrders);
+                filterRiwayat();
             } catch (err) { 
-                console.error(err);
                 document.getElementById('riwayatList').innerHTML = `<tr><td colspan="6" class="text-center text-muted py-4"><i class="bi bi-wifi-off"></i> Gagal memuat riwayat.</td></tr>`;
             }
         }
 
-        function renderRiwayat(data) {
+        function filterRiwayat() {
+            const query = document.getElementById('searchRiwayat').value.trim().toLowerCase();
+            toggleClearBtn(document.getElementById('searchRiwayat'));
+            const meta = document.getElementById('searchRiwayatMeta');
+            
+            let filtered = allRiwayat;
+            if (query) {
+                filtered = allRiwayat.filter(r => {
+                    const id = String(r.ID_PESANAN || '').toLowerCase();
+                    const nama = String(r.NAMA_PEMESAN || '').toLowerCase();
+                    const tiket = String(r.ID_TIKET || '').toLowerCase();
+                    const metode = String(r.METODE_PEMBAYARAN || '').toLowerCase();
+                    const status = String(r.STATUS || '').toLowerCase();
+                    return id.includes(query) || nama.includes(query) || tiket.includes(query) || metode.includes(query) || status.includes(query);
+                });
+            }
+            
+            if (meta) {
+                if (query) meta.innerHTML = `<i class="bi bi-funnel"></i> Menampilkan <b>${filtered.length}</b> dari <b>${allRiwayat.length}</b> pesanan`;
+                else meta.innerHTML = '';
+            }
+            
+            renderRiwayat(filtered, query);
+        }
+
+        function getStatusBadge(status) {
+            const s = String(status || '').toLowerCase();
+            if (s === 'lunas') return '<span class="status-badge status-lunas">Lunas</span>';
+            if (s === 'batal') return '<span class="status-badge status-batal">Batal</span>';
+            if (s === 'check-in' || s === 'checkin') return '<span class="status-badge status-checkin">Check-In</span>';
+            if (s === 'menunggu izin ubah') return '<span class="status-badge status-menunggu">Menunggu Izin Edit</span>';
+            if (s === 'izin edit diberikan') return '<span class="status-badge status-izin">Izin Edit Diberikan</span>';
+            if (s.includes('menunggu')) return '<span class="status-badge status-menunggu">Menunggu Verifikasi</span>';
+            return `<span class="status-badge status-menunggu">${status}</span>`;
+        }
+
+        function renderRiwayat(data, query = '') {
             const tbody = document.getElementById('riwayatList');
             if (!data.length) { 
-                tbody.innerHTML = `<tr><td colspan="6" class="text-center text-muted py-4"><i class="bi bi-inbox" style="font-size: 1.5rem;"></i><p class="mt-2 mb-0">Belum ada pesanan.</p></td></tr>`; 
-                return; 
+                tbody.innerHTML = `<tr><td colspan="6" class="text-center text-muted py-4"><i class="bi bi-inbox" style="font-size: 1.5rem;"></i><p class="mt-2 mb-0">${query ? 'Tidak ada pesanan yang cocok.' : 'Belum ada pesanan.'}</p></td></tr>`; return; 
             }
             tbody.innerHTML = data.map(r => {
-                let badgeColor = 'bg-warning text-dark';
-                if (r.STATUS === 'Lunas') badgeColor = 'bg-success';
-                if (r.STATUS === 'Batal') badgeColor = 'bg-danger';
                 let img = fixImgUrl(r.BUKTI_PEMBAYRAN || r.GAMBAR, '40x40');
-                return `<tr><td class="text-break">${r.ID_PESANAN}</td><td>Rp ${Number(r.TOTAL_HARGA).toLocaleString('id-ID')}</td><td>${r.METODE_PEMBAYARAN || '-'}</td><td><a href="${img}" target="_blank"><img src="${img}" width="40" height="40" style="object-fit:cover; border-radius:5px;" data-google-id="${extractGoogleDriveId(r.BUKTI_PEMBAYRAN || r.GAMBAR)}" onerror="imageError(this, '40x40')"></a></td><td><span class="badge ${badgeColor}">${r.STATUS}</span></td><td><button class="btn btn-sm btn-warning" onclick="openUbahModal('${r.ID_PESANAN}')"><i class="bi bi-pencil"></i> <span class="d-none d-md-inline">Ubah</span></button></td></tr>`;
+                let aksiHtml = '';
+                if (r.STATUS === 'Lunas' || r.STATUS === 'Menunggu Verifikasi Admin' || r.STATUS === 'Menunggu Verifikasi') {
+                    aksiHtml += `<button class="btn btn-sm btn-warning" onclick="openUbahModal('${r.ID_PESANAN}')"><i class="bi bi-pencil"></i> Ajukan Ubah</button>`;
+                }
+                if (r.STATUS === 'Izin Edit Diberikan') {
+                    aksiHtml += `<button class="btn btn-sm btn-success" onclick="openEditPesananModal('${r.ID_PESANAN}', '${r.ID_TIKET}')"><i class="bi bi-pencil-square"></i> Edit Pesanan</button>`;
+                }
+                if (r.STATUS === 'Menunggu Izin Ubah') {
+                    aksiHtml += `<span class="badge bg-warning text-dark">Menunggu Persetujuan</span>`;
+                }
+                if (!aksiHtml) aksiHtml = '<span class="text-muted small">Tidak ada aksi</span>';
+                
+                const hlId = query ? highlightMatch(r.ID_PESANAN, query) : r.ID_PESANAN;
+                const hlNama = query ? highlightMatch(r.NAMA_PEMESAN, query) : r.NAMA_PEMESAN;
+                const hlMetode = query ? highlightMatch(r.METODE_PEMBAYARAN, query) : (r.METODE_PEMBAYARAN || '-');
+                const hlStatus = query ? highlightMatch(r.STATUS, query) : r.STATUS;
+                
+                return `<tr><td class="text-break">${hlId}</td><td>Rp ${Number(r.TOTAL_HARGA).toLocaleString('id-ID')}</td><td>${hlMetode}</td><td><a href="${img}" target="_blank"><img src="${img}" width="40" height="40" style="object-fit:cover; border-radius:5px;" onerror="imageError(this, '40x40')"></a></td><td>${getStatusBadge(r.STATUS)}</td><td>${aksiHtml}</td></tr>`;
             }).join('');
         }
 
+        // =====================================================
+        // TIKET SAYA + SEARCH
+        // =====================================================
+        async function fetchTiketSaya() {
+            if (localStorage.getItem('isLoggedIn') !== 'true') return;
+            try {
+                const [res, resTiket] = await Promise.all([
+                    fetch(`${SCRIPT_URL}?action=getData&sheet=Sheet3`).then(r => r.json()),
+                    fetch(`${SCRIPT_URL}?action=getData&sheet=Sheet2`).then(r => r.json())
+                ]);
+                const userData = JSON.parse(localStorage.getItem('userData') || '{}');
+                const userEmail = extractUserField(userData, ['email', 'EMAIL', 'Email']);
+                const userNama = extractUserName(userData);
+                allTiketSaya = (res.data || []).filter(r => {
+                    const rowEmail = r.EMAIL || r.email || '';
+                    const rowNama = r.NAMA_PEMESAN || r.nama_pemesan || r.NAMA || '';
+                    return rowEmail === userEmail || rowNama === userNama;
+                });
+                allTiketMaster = resTiket.data || [];
+                filterTiketSaya();
+            } catch (err) { 
+                document.getElementById('tiketSayaList').innerHTML = `<div class="col-12 text-center text-muted py-5"><i class="bi bi-wifi-off" style="font-size: 2rem;"></i><p class="mt-2">Gagal memuat tiket.</p></div>`;
+            }
+        }
+
+        function filterTiketSaya() {
+            const query = document.getElementById('searchTiket').value.trim().toLowerCase();
+            toggleClearBtn(document.getElementById('searchTiket'));
+            const meta = document.getElementById('searchTiketMeta');
+            
+            const validOrders = allTiketSaya.filter(o => o.STATUS === 'Lunas' || o.STATUS === 'Check-In');
+            let filtered = validOrders;
+            if (query) {
+                filtered = validOrders.filter(o => {
+                    const tiketInfo = allTiketMaster.find(t => String(t.ID_TIKET) === String(o.ID_TIKET)) || {};
+                    const idPesanan = String(o.ID_PESANAN || '').toLowerCase();
+                    const namaTiket = String(tiketInfo.NAMA_TIKET || '').toLowerCase();
+                    const idTiket = String(o.ID_TIKET || '').toLowerCase();
+                    const namaPemesan = String(o.NAMA_PEMESAN || '').toLowerCase();
+                    return idPesanan.includes(query) || namaTiket.includes(query) || idTiket.includes(query) || namaPemesan.includes(query);
+                });
+            }
+            
+            if (meta) {
+                if (query) meta.innerHTML = `<i class="bi bi-funnel"></i> Menampilkan <b>${filtered.length}</b> dari <b>${validOrders.length}</b> tiket`;
+                else meta.innerHTML = '';
+            }
+            
+            renderTiketSaya(filtered, allTiketMaster, query);
+        }
+
+        function renderTiketSaya(orders, allTiket, query = '') {
+            const container = document.getElementById('tiketSayaList');
+            if (!orders.length) {
+                container.innerHTML = `<div class="col-12 text-center text-muted py-5"><i class="bi bi-ticket-detailed" style="font-size: 3rem;"></i><p class="mt-3">${query ? 'Tidak ada tiket yang cocok.' : 'Belum ada tiket yang aktif.'}<br><small>Tiket akan muncul setelah pembayaran diverifikasi admin.</small></p></div>`;
+                return;
+            }
+            container.innerHTML = orders.map(o => {
+                const tiketInfo = allTiket.find(t => String(t.ID_TIKET) === String(o.ID_TIKET)) || {};
+                const qrUrl = tiketInfo.QR_TIKET || `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=TIKET:${encodeURIComponent(o.ID_TIKET)}`;
+                const isCheckIn = o.STATUS === 'Check-In';
+                const badgeColor = isCheckIn ? 'bg-info' : 'bg-success';
+                const hlId = query ? highlightMatch(o.ID_PESANAN, query) : o.ID_PESANAN;
+                const hlNamaTiket = query ? highlightMatch(tiketInfo.NAMA_TIKET, query) : (tiketInfo.NAMA_TIKET || 'Tiket');
+                return `<div class="col-12 col-md-6 col-lg-4 mb-3"><div class="qr-ticket-card"><div class="d-flex justify-content-between align-items-center mb-2"><span class="badge ${badgeColor}">${o.STATUS}</span><small class="text-muted">${o['TANGGAL PESAN']}</small></div><h6 class="fw-bold mb-1" style="color: var(--primary)">${hlNamaTiket}</h6><p class="text-muted small mb-1">${o.NAMA_PEMESAN}</p><p class="text-muted small mb-2">Jumlah: ${o.JUMLAH} • Rp ${Number(o.TOTAL_HARGA).toLocaleString('id-ID')}</p><img src="${qrUrl}" class="qr-display mx-auto d-block mb-2" alt="QR Tiket"><p class="text-muted small mb-2">ID: <b>${hlId}</b></p><button class="btn btn-sm btn-success w-100" onclick="downloadQR('${qrUrl}', 'Tiket_${o.ID_PESANAN}')"><i class="bi bi-download"></i> Download QR</button></div></div>`;
+            }).join('');
+        }
+
+        // =====================================================
+        // FITUR UBAH PESANAN
+        // =====================================================
         function openUbahModal(id) { 
             document.getElementById('ubah_id_pesanan').value = id; 
             document.getElementById('ubah_alasan').value = ''; 
@@ -941,83 +1015,110 @@
         }
 
         async function kirimAjuanUbah() {
-            const btn = event.target; 
-            btn.disabled = true; 
-            btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Mengirim...';
+            const btn = event.target; btn.disabled = true; btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Mengirim...';
             const id = document.getElementById('ubah_id_pesanan').value, alasan = document.getElementById('ubah_alasan').value;
-            if(!alasan) { 
-                btn.disabled = false; 
-                btn.innerHTML = '<i class="bi bi-send"></i> Kirim Pengajuan'; 
+            if(!alasan || alasan.trim() === '') { 
+                btn.disabled = false; btn.innerHTML = '<i class="bi bi-send"></i> Kirim Pengajuan'; 
                 return alert("Alasan wajib diisi!"); 
             }
             try {
-                const res = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({action: 'updateData', sheet: 'Sheet3', idCol: 'ID_PESANAN', idVal: id, payload: { STATUS: "Menunggu Verifikasi", ALASAN_UBAH: alasan }}), headers: { 'Content-Type': 'text/plain;charset=utf-8' } });
+                const res = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({action: 'ajukanUbahPesanan', idVal: id, alasan: alasan}), headers: { 'Content-Type': 'text/plain;charset=utf-8' } });
                 const data = await res.json();
                 if (data.success) { 
-                    alert("Pengajuan terkirim ke admin."); 
+                    alert(data.message); 
                     bootstrap.Modal.getInstance(document.getElementById('ubahPesananModal')).hide(); 
                     fetchRiwayat(); 
-                }
-                else { alert("Gagal: " + data.message); }
+                } else { alert("Gagal: " + data.message); }
             } catch(e) { alert("Koneksi gagal"); }
-            btn.disabled = false; 
-            btn.innerHTML = '<i class="bi bi-send"></i> Kirim Pengajuan';
+            btn.disabled = false; btn.innerHTML = '<i class="bi bi-send"></i> Kirim Pengajuan';
+        }
+
+        async function openEditPesananModal(idPesanan, idTiket) {
+            try {
+                const [resPesanan, resTiket] = await Promise.all([
+                    fetch(`${SCRIPT_URL}?action=getData&sheet=Sheet3`).then(r => r.json()),
+                    fetch(`${SCRIPT_URL}?action=getData&sheet=Sheet2`).then(r => r.json())
+                ]);
+                const pesanan = (resPesanan.data || []).find(p => String(p.ID_PESANAN) === String(idPesanan));
+                const tiket = (resTiket.data || []).find(t => String(t.ID_TIKET) === String(idTiket));
+                if (!pesanan) { return alert("Pesanan tidak ditemukan."); }
+                if (pesanan.STATUS !== 'Izin Edit Diberikan') { return alert("Anda belum diberi izin edit. Status: " + pesanan.STATUS); }
+                document.getElementById('edit_id_pesanan').value = idPesanan;
+                document.getElementById('edit_id_tiket').value = idTiket;
+                document.getElementById('edit_id_pesanan_display').value = idPesanan;
+                document.getElementById('edit_nama_tiket').value = tiket ? tiket.NAMA_TIKET : '-';
+                document.getElementById('edit_harga').value = tiket ? tiket.HARGA : (pesanan.TOTAL_HARGA / pesanan.JUMLAH);
+                document.getElementById('edit_jumlah').value = pesanan.JUMLAH || 1;
+                document.getElementById('edit_metode').value = pesanan.METODE_PEMBAYARAN || '';
+                document.getElementById('edit_bukti').value = '';
+                document.getElementById('edit_bukti_preview').innerHTML = '';
+                document.getElementById('edit_no_hp').value = pesanan.NO_HP || '';
+                document.getElementById('edit_alamat').value = pesanan.ALAMAT || '';
+                hitungTotalEdit();
+                new bootstrap.Modal(document.getElementById('editPesananModal')).show();
+            } catch(e) { alert("Gagal memuat data pesanan."); }
+        }
+
+        async function simpanEditPesanan() {
+            const btn = event.target; btn.disabled = true; btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Menyimpan...';
+            const idPesanan = document.getElementById('edit_id_pesanan').value;
+            const jumlah = parseInt(document.getElementById('edit_jumlah').value) || 1;
+            const harga = parseInt(document.getElementById('edit_harga').value) || 0;
+            const totalHarga = jumlah * harga;
+            const payload = {
+                JUMLAH: jumlah,
+                TOTAL_HARGA: totalHarga,
+                METODE_PEMBAYARAN: document.getElementById('edit_metode').value,
+                NO_HP: document.getElementById('edit_no_hp').value,
+                ALAMAT: document.getElementById('edit_alamat').value
+            };
+            const buktiUrl = document.getElementById('edit_bukti').value;
+            if (buktiUrl) payload.BUKTI_PEMBAYRAN = buktiUrl;
+            if (!payload.METODE_PEMBAYARAN) { btn.disabled = false; btn.innerHTML = '<i class="bi bi-check2-circle"></i> Simpan Perubahan'; return alert("Pilih metode pembayaran!"); }
+            if (!payload.NO_HP) { btn.disabled = false; btn.innerHTML = '<i class="bi bi-check2-circle"></i> Simpan Perubahan'; return alert("No HP wajib diisi!"); }
+            if (!payload.ALAMAT) { btn.disabled = false; btn.innerHTML = '<i class="bi bi-check2-circle"></i> Simpan Perubahan'; return alert("Alamat wajib diisi!"); }
+            if (isImageDataUrl(buktiUrl) && buktiUrl.length > 49000) { btn.disabled = false; btn.innerHTML = '<i class="bi bi-check2-circle"></i> Simpan Perubahan'; return alert('Ukuran gambar terlalu besar.'); }
+            try {
+                const res = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({action: 'editPesananByUser', idVal: idPesanan, payload: payload}), headers: { 'Content-Type': 'text/plain;charset=utf-8' } });
+                const data = await res.json();
+                if (data.success) { 
+                    alert(data.message); 
+                    bootstrap.Modal.getInstance(document.getElementById('editPesananModal')).hide(); 
+                    fetchRiwayat(); fetchTiketSaya(); 
+                } else { alert("Gagal: " + data.message); }
+            } catch(e) { alert("Koneksi gagal"); }
+            btn.disabled = false; btn.innerHTML = '<i class="bi bi-check2-circle"></i> Simpan Perubahan';
         }
 
         async function deleteMyHistory() {
             if (!confirm("Yakin ingin menghapus SEMUA riwayat pesanan Anda?")) return;
-            const btn = event.target; 
-            btn.disabled = true; 
-            btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Menghapus...';
+            const btn = event.target; btn.disabled = true; btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Menghapus...';
             const userData = JSON.parse(localStorage.getItem('userData') || '{}');
             const email = extractUserField(userData, ['email', 'EMAIL', 'Email']);
             const nama = extractUserName(userData);
-            
             try {
-                const res = await fetch(SCRIPT_URL, { 
-                    method: 'POST', 
-                    body: JSON.stringify({
-                        action: 'deleteAllUserHistory', 
-                        email: email,
-                        nama_pemesan: nama
-                    }), 
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' } 
-                });
+                const res = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'deleteAllUserHistory', email: email, nama_pemesan: nama }), headers: { 'Content-Type': 'text/plain;charset=utf-8' } });
                 const data = await res.json();
-                if (data.success) { 
-                    alert(data.message); 
-                    fetchRiwayat(); 
-                } else { 
-                    alert("Gagal: " + data.message); 
-                }
-            } catch(e) { 
-                alert("Koneksi gagal"); 
-            }
-            btn.disabled = false; 
-            btn.innerHTML = '<i class="bi bi-trash"></i> <span class="d-none d-sm-inline">Hapus Semua</span>';
+                if (data.success) { alert(data.message); fetchRiwayat(); fetchTiketSaya(); }
+                else { alert("Gagal: " + data.message); }
+            } catch(e) { alert("Koneksi gagal"); }
+            btn.disabled = false; btn.innerHTML = '<i class="bi bi-trash"></i> Hapus Semua';
         }
 
         function formatDate(dateString) { 
             if (!dateString) return "-"; 
-            try { 
-                return new Date(dateString).toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' }); 
-            } catch { 
-                return dateString; 
-            } 
+            try { return new Date(dateString).toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' }); } 
+            catch { return dateString; } 
         }
         
-        window.onload = () => { 
-            checkUIState(); 
-        };
-        
-        // Handle resize untuk perbaikan layout
-        let resizeTimer;
-        window.addEventListener('resize', () => {
-            clearTimeout(resizeTimer);
-            resizeTimer = setTimeout(() => {
-                // Force re-render jika ada perubahan ukuran signifikan
-            }, 250);
+        // Add event listeners for clear button toggle
+        document.addEventListener('input', function(e) {
+            if (e.target && e.target.classList && e.target.classList.contains('form-control') && e.target.parentElement.classList.contains('search-container')) {
+                toggleClearBtn(e.target);
+            }
         });
+        
+        window.onload = () => { checkUIState(); };
     </script>
 </body>
 </html>
